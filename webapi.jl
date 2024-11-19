@@ -18,7 +18,6 @@ route("/simulations", method=POST) do
 
     sort!(agents, by=x -> x.id)
 
-    save_model_info(model, "model_info.txt")
 
     json(Dict("Location" => "/simulations/$id", "agents" => agents))
 end
@@ -34,7 +33,6 @@ route("/simulations/:id") do
 
     sort!(agents, by=x -> x.id)
 
-    save_model_info(model, "model_info.txt")
     json(Dict("agents" => agents))
 end
 

@@ -1,5 +1,6 @@
 from py3dbp import Packer, Bin, Item, Painter
 import time
+import ast
 start = time.time()
 
 '''
@@ -15,7 +16,7 @@ packer = Packer()
 # Unit cm/kg
 box = Bin(
     partno='example0',
-    WHD=(10,10,10),
+    WHD=(30,10,20),
     max_weight=28080,
     corner=0,
     put_type=1
@@ -83,18 +84,49 @@ packer.addBin(box)
 #         color='#0000E3')
 #     )
 
-for i in range(6):
+# for i in range(6):
+#     packer.addItem(Item(
+#         partno='Server{}'.format(str(i+1)),
+#         name='server',
+#         typeof='cube',
+#         WHD=(5, 5, 5),
+#         weight=20,
+#         level=1,
+#         loadbear=100,
+#         updown=True,
+#         color='#0000E3')
+#     )
+
+#Read the file and add ems to the packer
+file = open('box_dimensions.txt', 'r')
+for line in file:
+    parts = line.split(' [')
+    print(line)
+    print("-------------")
+    print("Parts")
+    print(parts)
+    # print("parts 0")
+    # print(parts[0])
+    # print("parts 1")
+    # print(parts[1])
+
+
+    dimensions =  ast.literal_eval('['+parts[1])
     packer.addItem(Item(
-        partno='Server{}'.format(str(i+1)),
+        partno='Package{}'.format(str(parts[0])),
         name='server',
         typeof='cube',
-        WHD=(5, 5, 5),
+        WHD=(dimensions[0], dimensions[1], dimensions[2]),
         weight=20,
         level=1,
         loadbear=100,
         updown=True,
         color='#0000E3')
     )
+
+
+
+
 
 # calculate packing
 packer.pack(

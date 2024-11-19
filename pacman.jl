@@ -2,7 +2,7 @@
 
 using Agents
 using CairoMakie
-using Pycall
+using PyCall
 
 @agent struct Robot(GridAgent{2,})
     type::String = "Robot"
@@ -31,6 +31,7 @@ end
     type::String = "Box"
     #tiene dimensiones
     dimension::Vector{Int} = [1, 1, 1]
+    ordered_position::Vector{Int} = [1, 1, 1]
 end
 
 @agent struct Estante(GridAgent{2})
@@ -179,15 +180,16 @@ function initialize_model()
     space = GridSpace((50, 50); periodic=false, metric=:manhattan)
     model = StandardABM(Union{Robot,Box,Estante}, space; agent_step!)
     #Se agregan los robots
+    #Supongamos que solo hay uno
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(50, 1), model)
-    add_agent!(Robot, limit=(11, 20), direction=[1, -1], pos=(50, 11), model)
-    add_agent!(Robot, limit=(21, 30), direction=[1, -1], pos=(50, 21), model)
-    add_agent!(Robot, limit=(31, 40), direction=[1, -1], pos=(50, 31), model)
-    add_agent!(Robot, limit=(41, 50), direction=[1, -1], pos=(50, 41), model)
+    # add_agent!(Robot, limit=(11, 20), direction=[1, -1], pos=(50, 11), model)
+    # add_agent!(Robot, limit=(21, 30), direction=[1, -1], pos=(50, 21), model)
+    # add_agent!(Robot, limit=(31, 40), direction=[1, -1], pos=(50, 31), model)
+    # add_agent!(Robot, limit=(41, 50), direction=[1, -1], pos=(50, 41), model)
 
     # #Se agregan las cajas
 
-    for i in 1:40
+    for i in 1:10
         add_agent!(Box, pos=(rand(1:50), rand(1:50)), model)
     end
     #Se agrega el estante teniendo la ultima id
@@ -204,17 +206,24 @@ function initialize_model()
         # Iterate through the box and send the dimensions to the file
         for agent in allagents(model)
             if (agent.type == "Box")
-                print(file, "$(agent.id)")
-                println(file, " (agent.dimension)")
+                print(file, "$(agent.id) ")
+                println(file, agent.dimension)
                 # println(file)  # Blank line for readability
             end
             # println(file)  # Blank line for readability
         end
     end
     #Se ejecuta el script de python que nos dira las posiciones de las cajas
-    py"""
-    exec(open("your_script.py").read())
-    """
+
+    #se declara el ejecutable de python
+    python_executable = "/home/anhuar/anaconda3/envs/my_anaconda_env/bin/python"
+
+    #se ejecuta el script de python
+    run(`$python_executable myexample.py`)
+
+
+
+
     # Read the file created by the python script
     lines = readlines("box_dimensions.txt")
 
@@ -228,6 +237,7 @@ function initialize_model()
         #position is the orderede position of the box
         position = eval(Meta.parse("[" * parts[2]))
         println(position)
+        model[parse(Int, parts[1])].ordered_position = position
 
         # println("Number: $number, Array: $array")
     end
@@ -235,30 +245,5 @@ function initialize_model()
 
 
     return model
-end
-
-
-
-function save_model_info(model, filename::String)
-    open(filename, "w") do file
-        # Write model information
-        # println(file, "Model Information:")
-        # println(file, "Grid size: $(extrema(model.space).x2) x $(extrema(model.space).y2)")
-        # println(file, "Periodic: $(model.space.periodic)")
-        # println(file, "Metric: $(model.space.metric)")
-        # println(file, "\nAgents:")
-
-        # Iterate through agents and write their information
-        for agent in allagents(model)
-            println(file, "Agent ID: $(agent.id)")
-            # println(file, "  Type: $(typeof(agent))")
-            # println(file, "  Position: $(agent.pos)")
-            # if typeof(agent) == Robot
-            #     println(file, "  Direction: $(agent.direction)")
-            #     println(file, "  Limit: $(agent.limit)")
-            # end
-            # println(file)  # Blank line for readability
-        end
-    end
 end
 
