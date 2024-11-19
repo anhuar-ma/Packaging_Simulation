@@ -1,8 +1,11 @@
 
 
-using Agents
+using Agents, Agents.Pathfinding
 using CairoMakie
 using PyCall
+using DataStructures
+
+queue_cajas = Queue{Int}()
 
 @agent struct Robot(GridAgent{2,})
     type::String = "Robot"
@@ -18,12 +21,17 @@ using PyCall
 
     #0 significa no hay una caga, 1 significa que vamos a acomodar una caga y el 2
     #que estamos regresando a nuestra posición inical
-    found_box::Int = 0
+    state::Int = 0
 
     #Past postiion para poder ir a dejar la caja y regresar a la posición anterior
     past_position::Vector{Int} = [-1, -1]
     #movientos de robot
     movimientos::Int = 0
+
+    objective_position::Vector{Int} = [0, 0]
+
+    #la caja que el robot esta manipulando
+    box_id::Int = 0
 end
 
 
@@ -32,6 +40,8 @@ end
     #tiene dimensiones
     dimension::Vector{Int} = [1, 1, 1]
     ordered_position::Vector{Int} = [1, 1, 1]
+    #si la caja va a ser manejada por un robot
+    targeted::Bool = false
 end
 
 @agent struct Estante(GridAgent{2})
@@ -47,133 +57,50 @@ function agent_step!(agent::Estante, model)
 end
 
 function agent_step!(agent::Robot, model)
-    if agent.finished && agent.found_box == 0
-        return
-    else
-        # print(agent.pos)
-        #Cada movimento voy a buscar la id del estante y le voy a sumar uno al contador
-
-        agent.movimientos += 1
-
-        if agent.found_box > 0
-
-            #Si ya encontró la caja, entonces la lleva a la posición 49, 49
-            if agent.found_box == 1
-                if (agent.pos[1] < 50)
-                    agent.direction[1] = 1
-                    move_agent!(agent, (agent.pos[1] + 1, agent.pos[2]), model)
-
-
-                    #durante este trayecto hacia arriba, el robot va a estar viendo hacia arriba
-                    agent.looking_at = 90
-
-                else
-
-                    #Se agrega caja a estante
-                    #se busca la id del estante
-                    agents_at_pos = agents_in_position((1, 1), model)
-                    estante_id = -1
-                    for agent_in_pos in agents_at_pos
-                        if agent_in_pos.type == "Estante"
-                            estante_id = agent_in_pos.id
-                            # println("---------------------------------")
-                        end
-                    end
-
-                    model[estante_id].cantidad_cajas += 1
-
-                    agent.found_box = 2
-
-                end
-            elseif agent.found_box == 2
-
-                if (agent.pos[1] > agent.past_position[1])
-                    agent.direction[1] = -1
-                    #Si ya llegó a la posición 50 entonces regresa a la posición anterior
-
-                    move_agent!(agent, (agent.pos[1] - 1, agent.pos[2]), model)
-
-                    #durante este trayecto de regresar a su anterior posición, el robot va a estar viendo hacia abajo
-                    agent.looking_at = 270
-                else
-                    agent.found_box = 0
-                    # agent.past_position = [-1, -1]
-                end
-
-            end
-
-
-        else
-
-            # randomwalk!(agent, model)
-            # Determine the new position
-            # y is 1 and x is 2
-
-            #checking if is in the limits of y
-            #if i'm going down and I have reach 1,the floor, then go up
-            if (agent.pos[1] == 1 && agent.direction[1] == -1)
-                agent.direction[1] = 1
-                #if i'm going up and I have reach 50, then go down
-            elseif (agent.pos[1] == 50 && agent.direction[1] == 1)
-                agent.direction[1] = -1
-            end
-
-
-            new_pos = agent.pos
-            # Checar si esta en los límites de x
-            # Si choco con los límites cambiar la dirección
-            if (agent.pos[2] == agent.limit[1] && agent.direction[2] == -1) || (agent.pos[2] == agent.limit[2] && agent.direction[2] == 1)
-                agent.direction[2] *= -1
-                # agent.move = true
-
-                #si llege al limite me voy a mover hacia arriba o hacia abajo
-
-                if agent.direction[1] == 1
-                    agent.looking_at = 90
-                else
-                    agent.looking_at = 270
-                end
-
-                new_pos = (agent.pos[1] + (1 * agent.direction[1]), agent.pos[2])
-            else
-
-                #si no estoy en el limite entonces me muevo hacia la dirección que estoy viendo
-
-                if agent.direction[2] == 1
-                    agent.looking_at = 0
-                else
-                    agent.looking_at = 180
-                end
-
-                new_pos = (agent.pos[1], agent.pos[2] + agent.direction[2])
-            end
-
-
-            #Verificar si hay una caja en la posición en la que estamos
-            for box in nearby_agents(agent, model, 1)
-                if box.type == "Box"
-                    # println("Hay una caja en la posición: ", agent.pos)
-                    remove_agent!(box, model)
-                    agent.found_box = true
-                    agent.past_position = [agent.pos[1], agent.pos[2]]
-                end
-            end
-
-
-            # Mover el agente a la nueva posición
-            move_agent!(agent, new_pos, model)
-
+    println("fuaaaaaaaaaaaaa")
+    println("agent.state")
+    println(agent.state)
+    #Si no tiene caja
+    if agent.state == 0
+        #Si no ha encontrado una caja, se busca y se crea su ruta
+        if (!isempty(queue_cajas))
+            box = model[dequeue!(queue_cajas)]
+            agent.state = 1
+            agent.objective_position = collect(box.pos)
+            agent.box_id = box.id
+            plan_route!(agent, box.pos, pathfinder)
+            print("algoooooooooooo2222222")
         end
+    elseif agent.state == 1
+        #si ya encontró la caja, se mueve a ella
+        move_along_route!(agent, model, pathfinder)
 
+        #si ya llegó a la caja se cambia de estado y se elimina la caja
+        println("agent pos")
+        println(agent.pos)
+        println("objective pos")
+        println(agent.objective_position)
+
+        if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
+            agent.state = 2
+            agent.objective_position = [1, 1]
+            remove_agent!(model[agent.box_id], model)
+            plan_route!(agent, (1, 1), pathfinder)
+        end
+    else
+        #si ya encontró la caja, se mueve al carro para ordenarla
+        move_along_route!(agent, model, pathfinder)
+        #si ya se llego al estante, se cambia de estado
+        if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
+            agent.state = 0
+        end
+        println("algoooooooooooo")
 
 
     end
-
-    if agent.pos[1] == 1 && agent.pos[2] == agent.limit[1]
-        agent.finished = true
-    end
-
 end
+
+
 
 function initialize_model()
     # Se crea una grid de 50x50
@@ -182,10 +109,6 @@ function initialize_model()
     #Se agregan los robots
     #Supongamos que solo hay uno
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(50, 1), model)
-    add_agent!(Robot, limit=(11, 20), direction=[1, -1], pos=(50, 11), model)
-    add_agent!(Robot, limit=(21, 30), direction=[1, -1], pos=(50, 21), model)
-    add_agent!(Robot, limit=(31, 40), direction=[1, -1], pos=(50, 31), model)
-    add_agent!(Robot, limit=(41, 50), direction=[1, -1], pos=(50, 41), model)
 
     # #Se agregan las cajas
 
@@ -201,6 +124,7 @@ function initialize_model()
             box.dimension = [rand(1:5), rand(1:5), rand(1:5)]
         end
     end
+    pathfinder = AStar(space; diagonal_movement=false)
 
     open("box_dimensions.txt", "w") do file
         # Iterate through the box and send the dimensions to the file
@@ -227,6 +151,10 @@ function initialize_model()
     # Read the file created by the python script
     lines = readlines("box_dimensions.txt")
 
+    #Se crea una queue para guardar el orden de las cajas
+
+    global queue_cajas
+
     # Process each line
     for line in lines
         # Split the line into two parts: the number and the list
@@ -234,6 +162,7 @@ function initialize_model()
 
         #parts[1] is the id of the box
         println(parts[1])
+        enqueue!(queue_cajas, parse(Int, parts[1]))
         #position is the orderede position of the box
         position = eval(Meta.parse("[" * parts[2]))
         println(position)
@@ -244,6 +173,8 @@ function initialize_model()
 
 
 
-    return model
+    return model, pathfinder
 end
+
+model, pathfinder = initialize_model()
 

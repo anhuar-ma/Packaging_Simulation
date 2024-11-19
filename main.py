@@ -99,6 +99,7 @@ def display():
         return
 
     print(datos)
+    print("----------------------------------------------------------------------")
 
 
     #empezaran viendo hacia la derecha porque su ruta sera
@@ -108,10 +109,10 @@ def display():
 
     opera.scale(scale*5,scale*5)
 
-
+    cantidad_robots = 1
 
     #todos las cajas, excepto el estante
-    for i in range(5, len(datos["agents"]) - 1):
+    for i in range(cantidad_robots, len(datos["agents"]) - 1):
         #boxes es la lista con objetos box
         b = boxes[i-5]
         opera.push()
@@ -122,7 +123,7 @@ def display():
         opera.pop()
 
 
-    for i in range(5):
+    for i in range(cantidad_robots):
         r = robots[i]
         robot_julia = datos["agents"][i]
         opera.push()
@@ -151,7 +152,7 @@ def display():
     ultimo_index = len(datos["agents"]) - 1
 
     pos_caja_x = 0
-    # print("Cantidad de cajas: ", datos["agents"][ultimo_index]["cantidad_cajas"])
+    # Se apilan las cajas
     for i in range (datos["agents"][ultimo_index]["cantidad_cajas"]):
         if(i % 5 == 0 and i > 0):
             pos_caja_x += 3
@@ -171,7 +172,7 @@ def display():
         movimientos_totales = []
         movimientos = []
         #se itera por cada robot y se obtiene su movimiento
-        for i in range(5):
+        for i in range(cantidad_robots):
             movimientos.append( datos["agents"][i]["movimientos"])
 
         mean = sum(movimientos) / len(movimientos)

@@ -7,7 +7,7 @@ instances = Dict()
 route("/simulations", method=POST) do
     payload = jsonpayload()
 
-    model = initialize_model()
+    model, pathfinder = initialize_model()
     id = string(uuid1())
     instances[id] = model
 
