@@ -98,7 +98,7 @@ def display():
         print(f"JSON decode error: {e}")
         return
 
-
+    print(datos)
 
 
     #empezaran viendo hacia la derecha porque su ruta sera

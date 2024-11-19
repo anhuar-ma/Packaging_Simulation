@@ -182,10 +182,10 @@ function initialize_model()
     #Se agregan los robots
     #Supongamos que solo hay uno
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(50, 1), model)
-    # add_agent!(Robot, limit=(11, 20), direction=[1, -1], pos=(50, 11), model)
-    # add_agent!(Robot, limit=(21, 30), direction=[1, -1], pos=(50, 21), model)
-    # add_agent!(Robot, limit=(31, 40), direction=[1, -1], pos=(50, 31), model)
-    # add_agent!(Robot, limit=(41, 50), direction=[1, -1], pos=(50, 41), model)
+    add_agent!(Robot, limit=(11, 20), direction=[1, -1], pos=(50, 11), model)
+    add_agent!(Robot, limit=(21, 30), direction=[1, -1], pos=(50, 21), model)
+    add_agent!(Robot, limit=(31, 40), direction=[1, -1], pos=(50, 31), model)
+    add_agent!(Robot, limit=(41, 50), direction=[1, -1], pos=(50, 41), model)
 
     # #Se agregan las cajas
 
