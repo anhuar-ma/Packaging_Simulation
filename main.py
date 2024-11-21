@@ -35,10 +35,12 @@ opera = OpMat()
 robots = []
 boxes = []
 
-for i in range(5):
+cantidad_robots = 1
+
+for i in range(cantidad_robots):
     robots.append(Robot(opera))
 
-for i in range(5,len(datos["agents"])):
+for i in range(cantidad_robots,len(datos["agents"])):
     boxes.append(Box(opera))
 
 
@@ -82,6 +84,7 @@ def display():
     global deg1
     global degrot
     global delta_degrot
+    global cantidad_robots
     glClear(GL_COLOR_BUFFER_BIT)
     Axis()
     response = requests.get(URL_BASE + LOCATION)
@@ -109,7 +112,7 @@ def display():
 
     opera.scale(scale*5,scale*5)
 
-    cantidad_robots = 1
+
 
     #todos las cajas, excepto el estante
     for i in range(cantidad_robots, len(datos["agents"]) - 1):

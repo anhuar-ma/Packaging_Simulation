@@ -4,10 +4,9 @@ using Agents, Agents.Pathfinding
 using CairoMakie
 using PyCall
 using DataStructures
-
 queue_cajas = Queue{Int}()
 
-@agent struct Robot(GridAgent{2,})
+@agent struct Robot(GridAgent{2})
     type::String = "Robot"
     # direction[1] = 1 up , -1 down ; direction[2] ,1 = foward, -1 = backward
     direction::Vector{Int} = [1, 1]
@@ -19,8 +18,7 @@ queue_cajas = Queue{Int}()
 
     finished::Bool = false
 
-    #0 significa no hay una caga, 1 significa que vamos a acomodar una caga y el 2
-    #que estamos regresando a nuestra posición inical
+    #0 significa no hay una caga, 1 significa que vamos a encontrar una caga,el 2 que estamos recojiendo la caja y el 3 que estamos acomondando la caja y el 4 que estamos dejando la caja
     state::Int = 0
 
     #Past postiion para poder ir a dejar la caja y regresar a la posición anterior
@@ -32,6 +30,9 @@ queue_cajas = Queue{Int}()
 
     #la caja que el robot esta manipulando
     box_id::Int = 0
+
+    #counter para las iteraciones
+    platformHeight::Int = -150
 end
 
 
@@ -57,29 +58,32 @@ function agent_step!(agent::Estante, model)
 end
 
 function agent_step!(agent::Robot, model)
-    println("fuaaaaaaaaaaaaa")
-    println("agent.state")
-    println(agent.state)
-    #Si no tiene caja
+    # println("fuaaaaaaaaaaaaa")
+    # println("agent.state")
+    # println(agent.state)
+    #Se esta buscando una caja para recoger
     if agent.state == 0
-        #Si no ha encontrado una caja, se busca y se crea su ruta
+        #Se busca la caja de la queue(la caja que sigue)
         if (!isempty(queue_cajas))
             box = model[dequeue!(queue_cajas)]
             agent.state = 1
             agent.objective_position = collect(box.pos)
             agent.box_id = box.id
+            println("------------------------------------")
+            println("Box")
+            println(box.id)
             plan_route!(agent, box.pos, pathfinder)
-            print("algoooooooooooo2222222")
+            # print("algoooooooooooo2222222")
         end
     elseif agent.state == 1
         #si ya encontró la caja, se mueve a ella
         move_along_route!(agent, model, pathfinder)
 
         #si ya llegó a la caja se cambia de estado y se elimina la caja
-        println("agent pos")
-        println(agent.pos)
-        println("objective pos")
-        println(agent.objective_position)
+        # println("agent pos")
+        # println(agent.pos)
+        # println("objective pos")
+        # println(agent.objective_position)
 
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
             agent.state = 2
@@ -87,15 +91,29 @@ function agent_step!(agent::Robot, model)
             remove_agent!(model[agent.box_id], model)
             plan_route!(agent, (1, 1), pathfinder)
         end
-    else
+        #Se esta recogiendo la caja, levantanto la plataforma
+    elseif agent.state == 2
+        if agent.platformHeight >= 0
+            agent.state = 3
+        else
+            agent.platformHeight += 1
+        end
+        #Se esta moviendo la caja a su posicion ordenada,es decir al camion
+    elseif agent.state == 3
         #si ya encontró la caja, se mueve al carro para ordenarla
         move_along_route!(agent, model, pathfinder)
         #si ya se llego al estante, se cambia de estado
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
-            agent.state = 0
+            agent.state = 4
         end
-        println("algoooooooooooo")
-
+        # println("algoooooooooooo")
+        #Se va a dejar caer la caja,bajando la plataforma
+    else
+        if agent.platformHeight <= -150
+            agent.state = 0
+        else
+            agent.platformHeight -= 1
+        end
 
     end
 end
@@ -110,14 +128,16 @@ function initialize_model()
     #Supongamos que solo hay uno
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(50, 1), model)
 
-    # #Se agregan las cajas
+    # #Se agregan las posiciones de las cajas
 
     for i in 1:10
         add_agent!(Box, pos=(rand(1:50), rand(1:50)), model)
     end
+
     #Se agrega el estante teniendo la ultima id
     add_agent!(Estante, pos=(1, 1), model)
 
+    #TODO: dar opciones de cajas en vez de random
     #Se crean aleatoramiente las dimiensiones de las cajas
     for box in allagents(model)
         if box.type == "Box"
@@ -149,17 +169,19 @@ function initialize_model()
 
 
     # Read the file created by the python script
-    lines = readlines("box_dimensions.txt")
+    lines = readlines("box_positions.txt")
 
     #Se crea una queue para guardar el orden de las cajas
 
     global queue_cajas
 
+    empty!(queue_cajas)
+
     # Process each line
     for line in lines
         # Split the line into two parts: the number and the list
         parts = split(line, r"\s+\[")  # Split by whitespace followed by [
-
+        # println(parts)
         #parts[1] is the id of the box
         println(parts[1])
         enqueue!(queue_cajas, parse(Int, parts[1]))

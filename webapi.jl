@@ -2,6 +2,13 @@ include("pacman.jl")
 using Genie, Genie.Renderer.Json, Genie.Requests, HTTP
 using UUIDs
 
+using Logging
+
+# Set the global logging level to Warn
+global_logger(ConsoleLogger(stderr, Logging.Warn))
+
+
+
 instances = Dict()
 
 route("/simulations", method=POST) do

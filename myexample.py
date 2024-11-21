@@ -1,6 +1,10 @@
 from py3dbp import Packer, Bin, Item, Painter
 import time
 import ast
+
+import re
+from decimal import Decimal
+
 start = time.time()
 
 '''
@@ -113,7 +117,7 @@ for line in file:
 
     dimensions =  ast.literal_eval('['+parts[1])
     packer.addItem(Item(
-        partno='Package{}'.format(str(parts[0])),
+        partno='{}'.format(str(parts[0])),
         name='server',
         typeof='cube',
         WHD=(dimensions[0], dimensions[1], dimensions[2]),
@@ -194,4 +198,18 @@ for box in packer.bins:
         write_num=True,
         fontsize=10
     )
+
+
+
+
 fig.show()
+
+#write the ordered positions in the txt
+with open('box_positions.txt', 'w') as file:
+    for item in box.items:
+        # Extract just the numbers as floats
+        numbers = [int(d) for d in item.position]
+        file.write( "{0} [{1}, {2}, {3}]\n".format(item.partno,numbers[0],numbers[1],numbers[2]))
+
+
+

@@ -38,6 +38,21 @@ for i in range(5):
         color='#FF0000')
     )
 
+
+packer.addItem(Item(
+    partno='Mi paquete'.format(str(i+1)),
+    name='Dysono',
+    typeof='cube',
+    WHD=(20, 20, 200),
+    weight=85.12,
+    level=1,
+    loadbear=100,
+    updown=True,
+    color='#000000')
+)
+
+
+
 # washing machine (85 * 60 *60 ,10 kG)
 # 1 pcs per case, 85 * 60 *60 (10)
 for i in range(10):
