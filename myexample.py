@@ -209,7 +209,7 @@ with open('box_positions.txt', 'w') as file:
     for item in box.items:
         # Extract just the numbers as floats
         numbers = [int(d) for d in item.position]
-        file.write( "{0} [{1}, {2}, {3}]\n".format(item.partno,numbers[0],numbers[1],numbers[2]))
+        file.write( "{0} [{1}, {2}, {3}] {4}\n".format(item.partno,numbers[0],numbers[1],numbers[2],item.rotation_type) )
 
 
 

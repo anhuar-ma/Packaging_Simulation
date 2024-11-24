@@ -43,6 +43,9 @@ end
     ordered_position::Vector{Int} = [1, 1, 1]
     #si la caja va a ser manejada por un robot
     targeted::Bool = false
+    #rotacion de la caja dadaba por package bin
+    rotation::Int = 0
+
 end
 
 @agent struct Estante(GridAgent{2})
@@ -62,6 +65,7 @@ function agent_step!(agent::Robot, model)
     # println("agent.state")
     # println(agent.state)
     #Se esta buscando una caja para recoger
+    deltaHeight = 2
     if agent.state == 0
         #Se busca la caja de la queue(la caja que sigue)
         if (!isempty(queue_cajas))
@@ -93,10 +97,11 @@ function agent_step!(agent::Robot, model)
         end
         #Se esta recogiendo la caja, levantanto la plataforma
     elseif agent.state == 2
+
         if agent.platformHeight >= 0
             agent.state = 3
         else
-            agent.platformHeight += 1
+            agent.platformHeight += deltaHeight
         end
         #Se esta moviendo la caja a su posicion ordenada,es decir al camion
     elseif agent.state == 3
@@ -112,7 +117,7 @@ function agent_step!(agent::Robot, model)
         if agent.platformHeight <= -150
             agent.state = 0
         else
-            agent.platformHeight -= 1
+            agent.platformHeight -= deltaHeight
         end
 
     end
@@ -180,15 +185,20 @@ function initialize_model()
     # Process each line
     for line in lines
         # Split the line into two parts: the number and the list
-        parts = split(line, r"\s+\[")  # Split by whitespace followed by [
+
+        parts = split(line, r"\s*\[\s*|\s*\]\s*")  # Split by [ and ] with optional whitespace
+
         # println(parts)
         #parts[1] is the id of the box
         println(parts[1])
         enqueue!(queue_cajas, parse(Int, parts[1]))
         #position is the orderede position of the box
-        position = eval(Meta.parse("[" * parts[2]))
+        position = eval(Meta.parse("[" * parts[2] * "]"))  # Convert the second part (the list) to a J
         println(position)
         model[parse(Int, parts[1])].ordered_position = position
+
+        #rotatcion de la caja, que se la 3 parte
+        model[parse(Int, parts[1])].rotation = parse(Int, parts[3])
 
         # println("Number: $number, Array: $array")
     end

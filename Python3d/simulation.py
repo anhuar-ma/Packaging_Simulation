@@ -82,7 +82,7 @@ radius = 300
 
 # Arreglo para el manejo de texturas
 textures = []
-filenames = ["img1.bmp","wheel.jpeg", "walle.jpeg","basura.bmp"]
+filenames = ["img1.bmp","wheel.jpg", "walle.jpg","basura.bmp"]
 
 def Axis():
     glShadeModel(GL_FLAT)
@@ -148,7 +148,7 @@ def Init():
 
 def planoText():
     # activate textures
-    glColor(1.0, 1.0, 1.0)
+    glColor(0.0, 1, 0)
     #glEnable(GL_TEXTURE_2D)
     # front face
     #glBindTexture(GL_TEXTURE_2D, textures[0])  # Use the first texture
