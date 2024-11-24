@@ -69,7 +69,9 @@ function agent_step!(agent::Robot, model)
     if agent.state == 0
         #Se busca la caja de la queue(la caja que sigue)
         if (!isempty(queue_cajas))
-            box = model[dequeue!(queue_cajas)]
+            #Cambio de lugar a que se elimine de la pila cuando se recoja
+            # box = model[dequeue!(queue_cajas)]
+            box = model[first(queue_cajas)]
             agent.state = 1
             agent.objective_position = collect(box.pos)
             agent.box_id = box.id
@@ -93,6 +95,7 @@ function agent_step!(agent::Robot, model)
             agent.state = 2
             agent.objective_position = [1, 1]
             remove_agent!(model[agent.box_id], model)
+            dequeue!(queue_cajas)
             plan_route!(agent, (1, 1), pathfinder)
         end
         #Se esta recogiendo la caja, levantanto la plataforma
@@ -199,13 +202,12 @@ function initialize_model()
 
         #rotatcion de la caja, que se la 3 parte
         model[parse(Int, parts[1])].rotation = parse(Int, parts[3])
-
         # println("Number: $number, Array: $array")
     end
 
 
 
-    return model, pathfinder
+    return model, pathfinder, queue_cajas
 end
 
 model, pathfinder = initialize_model()

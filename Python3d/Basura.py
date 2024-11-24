@@ -11,7 +11,11 @@ import math
 
 
 class Basura:
-    def __init__(self, dim, vel, textures, txtIndex,posX,posZ):
+    def __init__(self, dim, vel, textures, txtIndex,Id,posX,posZ,oX,oY,oZ,rotation,W,H,D):
+
+       #id de la caja de julia
+        self.id = Id
+
         # Se inicializa las coordenadas de los vertices del cubo
         self.vertexCoords = [1,1,1,1,1,-1,1,-1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,-1,-1,-1,-1,1,]
 
@@ -21,7 +25,13 @@ class Basura:
 
         self.dim = dim
         # Se inicializa una posicion aleatoria en el tablero
-        self.Position = [posX, 2, posZ]
+        self.Position = [posX, 0, posZ]
+
+        self.orderedPosition = [oX, oY, oZ]
+        self.rotationType = rotation
+        #width, height, depth
+        self.W_H_D = [W,H,D]
+
         # Inicializar las coordenadas (x,y,z) del cubo en el tablero
         # almacenandolas en el vector Position
         # ...
@@ -49,8 +59,8 @@ class Basura:
         # Se debe de calcular la posible nueva posicion del cubo a partir de su
         # posicion acutual (Position) y el vector de direccion (Direction)
         # ...
-
-        self.Position = [posX, 2, posZ]
+        return
+        # self.Position = [posX, 0, posZ]
         # Se debe verificar que el objeto cubo, con su nueva posible direccion
         # no se salga del plano actual (DimBoard)
         # ...
@@ -67,65 +77,71 @@ class Basura:
 
             glBegin(GL_QUADS)
 
-            # Front face
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(1, 1, 1)
-            glTexCoord2f(1.0, 0.0)
-            glVertex3d(-1, 1, 1)
-            glTexCoord2f(1.0, 1.0)
-            glVertex3d(-1, -1, 1)
-            glTexCoord2f(0.0, 1.0)
-            glVertex3d(1, -1, 1)
+            W = self.W_H_D[0]
+            H = self.W_H_D[1]
+            D = self.W_H_D[2]
 
-            # Back face
+            # Front face, we use Width and Depth
             glTexCoord2f(0.0, 0.0)
-            glVertex3d(-1, 1, -1)
+            glVertex3d(0, 0, 0)
             glTexCoord2f(1.0, 0.0)
-            glVertex3d(1, 1, -1)
+            glVertex3d(W, 0, 0)
             glTexCoord2f(1.0, 1.0)
-            glVertex3d(1, -1, -1)
+            glVertex3d(W, 0, D)
             glTexCoord2f(0.0, 1.0)
-            glVertex3d(-1, -1, -1)
+            glVertex3d(0, 0, D)
 
-            # Left face
+            # Back face use Width and Depth , but now with Height
             glTexCoord2f(0.0, 0.0)
-            glVertex3d(-1, 1, 1)
+            glVertex3d(0, H, 0)
             glTexCoord2f(1.0, 0.0)
-            glVertex3d(-1, 1, -1)
+            glVertex3d(W, H, 0)
             glTexCoord2f(1.0, 1.0)
-            glVertex3d(-1, -1, -1)
+            glVertex3d(W, H, D)
             glTexCoord2f(0.0, 1.0)
-            glVertex3d(-1, -1, 1)
+            glVertex3d(0, H, D)
 
-            # Right face
+            # Left face (use Height and Depth)
             glTexCoord2f(0.0, 0.0)
-            glVertex3d(1, 1, -1)
+            glVertex3d(0,0, 0)
             glTexCoord2f(1.0, 0.0)
-            glVertex3d(1, 1, 1)
+            glVertex3d(0, H, 0)
             glTexCoord2f(1.0, 1.0)
-            glVertex3d(1, -1, 1)
+            glVertex3d(0, H, D)
             glTexCoord2f(0.0, 1.0)
-            glVertex3d(1, -1, -1)
+            glVertex3d(0, 0, D)
 
-            # Top face
+            # Right face (use Height and Depth) but now with Width
             glTexCoord2f(0.0, 0.0)
-            glVertex3d(-1, 1, 1)
+            glVertex3d(W,0, 0)
             glTexCoord2f(1.0, 0.0)
-            glVertex3d(1, 1, 1)
+            glVertex3d(W, H, 0)
             glTexCoord2f(1.0, 1.0)
-            glVertex3d(1, 1, -1)
+            glVertex3d(W, H, D)
             glTexCoord2f(0.0, 1.0)
-            glVertex3d(-1, 1, -1)
+            glVertex3d(W, 0, D)
 
-            # Bottom face
+            # Top face (use Width and Height)
             glTexCoord2f(0.0, 0.0)
-            glVertex3d(-1, -1, 1)
-            glTexCoord2f(1.0, 0.0)
-            glVertex3d(1, -1, 1)
+            glVertex3d(0, 0, 0)
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(W, 0, 0)
             glTexCoord2f(1.0, 1.0)
-            glVertex3d(1, -1, -1)
+            glVertex3d(W, H, 0)
             glTexCoord2f(0.0, 1.0)
-            glVertex3d(-1, -1, -1)
+            glVertex3d(0, H, 0)
+
+            # Bottom face (use Width and Height) but now with Depth
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(0, 0, D)
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(W, 0, D)
+            glTexCoord2f(1.0, 1.0)
+            glVertex3d(W, H, D)
+            glTexCoord2f(0.0, 1.0)
+            glVertex3d(0, H, D)
+
+
 
             glEnd()
             glDisable(GL_TEXTURE_2D)

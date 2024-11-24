@@ -24,9 +24,10 @@ route("/simulations", method=POST) do
     end
 
     sort!(agents, by=x -> x.id)
+    # println(size(queue_cajas))
 
 
-    json(Dict("Location" => "/simulations/$id", "agents" => agents))
+    json(Dict("Location" => "/simulations/$id", "agents" => agents, "queue_front" => first(queue_cajas)))
 end
 
 route("/simulations/:id") do
@@ -39,8 +40,12 @@ route("/simulations/:id") do
     end
 
     sort!(agents, by=x -> x.id)
-
-    json(Dict("agents" => agents))
+    if (!isempty(queue_cajas))
+        json(Dict("agents" => agents, "queue_front" => first(queue_cajas)))
+    else
+        json(Dict("agents" => agents, "queue_front" => -1))
+    end
+    # json(Dict("agents" => agents))
 end
 
 

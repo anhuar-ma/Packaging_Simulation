@@ -22,8 +22,9 @@ r = requests.post(URL_BASE+ "/simulations", allow_redirects=False)
 datos = r.json()
 # datos se vuelve una lista con los datos de nuestros robots
 LOCATION = datos["Location"]
-
-
+print("--------------------------")
+print(LOCATION)
+print("--------------------------")
 
 
 
@@ -143,8 +144,28 @@ def Init():
     for i in range(cantidad_robots):
         lifters.append(Lifter(DimBoard, 0.7, textures,0,0))
 
-    for i in range(cantidad_robots, cantidad_robots + cantidad_cajas):
-        basuras.append(Basura(DimBoard,1,textures,3,0,0))
+    #Creacion de basuras
+    i = 0
+
+for i in range(len(datos["agents"])):
+    if datos["agents"][i]["type"] == "Box":
+        box = datos["agents"][i]
+        basuras.append(Basura(
+            DimBoard,1,textures,3,
+            box["id"],
+            escala * box["pos"][0],
+            escala * box["pos"][1],
+            escala * box["ordered_position"][0],
+            escala * box["ordered_position"][1],
+            escala * box["ordered_position"][2],
+            box["rotation"],
+            box["dimension"][0],
+            box["dimension"][1],
+            box["dimension"][2]
+            ))
+
+#primera caja para sacar
+anterior =datos["queue_front"]
 
 def planoText():
     # activate textures
@@ -200,14 +221,24 @@ def display():
     index = 0
     print("Cantidad de basuras: ", len(datos["agents"]) - (cantidad_robots))
 
-    for i in range(cantidad_robots, len(datos["agents"]) - cantidad_robots):
-        posX = datos["agents"][i]["pos"][0] * escala
-        posZ = datos["agents"][i]["pos"][1] * escala
-        print(i)
-        print("Posicion de la basura: ", posX, posZ)
-        basuras[index].update(posX, posZ)
-        basuras[index].draw()
-        index += 1
+    # for i in range(cantidad_robots, len(datos["agents"]) - cantidad_robots):
+    #     posX = datos["agents"][i]["pos"][0] * escala
+    #     posZ = datos["agents"][i]["pos"][1] * escala
+    #     print(i)
+    #     print("Posicion de la basura: ", posX, posZ)
+    #     # basuras[index].update(posX, posZ)
+    #     basuras[index].draw()
+    #     index += 1
+
+    global basuras
+    global anterior
+
+    for box in basuras:
+        box.draw()
+        if(anterior !=datos["queue_front"] and anterior != -1):
+            # Assuming basuras is a list of objects with a parameter 'id'
+            basuras = [box2 for box2 in basuras if box2.id != anterior]
+        anterior = datos["queue_front"]
 
 
 
