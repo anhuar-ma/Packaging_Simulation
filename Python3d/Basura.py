@@ -11,8 +11,9 @@ import math
 
 
 class Basura:
-    def __init__(self, dim, vel, textures, txtIndex,Id,posX,posZ,oX,oY,oZ,rotation,W,H,D):
-
+    # def __init__(self, dim, vel, textures, txtIndex,Id,posX,posZ,oX,oY,oZ,rotation,W,H,D):
+    def __init__(self, dim=None, vel=1, textures=None, txtIndex=0, Id=-1, posX=0, posZ=0, oX=0, oY=0, oZ=0, rotation=0, W=1, H=1, D=1):
+        # id de la caja de julia
        #id de la caja de julia
         self.id = Id
 
@@ -33,12 +34,33 @@ class Basura:
         self.orderedPosition = [oX, oY, oZ]
         self.rotationType = rotation
         #width, height, depth
-        self.W_H_D = [W,H,D]
+        #changing the order because of opengl is different
+        self.W_H_D = [H,D,W]
 
         # Inicializar las coordenadas (x,y,z) del cubo en el tablero
         # almacenandolas en el vector Position
         # ...
         # Se inicializa un vector de direccion aleatorio
+        self.ordered_W_H_D = self.W_H_D
+
+        if self.rotationType == 1:
+            self.ordered_W_H_D = [self.W_H_D[1],self.W_H_D[0],self.W_H_D[2]]
+        elif self.rotationType == 2:
+            self.ordered_W_H_D = [self.W_H_D[1],self.W_H_D[2],self.W_H_D[0]]
+        elif self.rotationType == 3:
+            print("FUCK"*100)
+            self.ordered_W_H_D = [self.W_H_D[2],self.W_H_D[1],self.W_H_D[0]]
+        elif self.rotationType == 4:
+            self.ordered_W_H_D = [self.W_H_D[2],self.W_H_D[0],self.W_H_D[1]]
+        elif self.rotationType == 5:
+            self.ordered_W_H_D = [self.W_H_D[0],self.W_H_D[2],self.W_H_D[1]]
+
+
+
+
+
+
+
         dirX = random.randint(-10, 10) or 1
         dirZ = random.randint(-1, 1) or 1
         magnitude = math.sqrt(dirX * dirX + dirZ * dirZ) * vel
@@ -55,8 +77,6 @@ class Basura:
         #Index de la textura a utilizar
         self.txtIndex = txtIndex
 
-        #Control variable for drawing
-        self.alive = True
 
     def update(self,posX,posZ):
         # Se debe de calcular la posible nueva posicion del cubo a partir de su
@@ -68,85 +88,96 @@ class Basura:
         # no se salga del plano actual (DimBoard)
         # ...
 
+
     def draw(self):
-        if self.alive:
-            glPushMatrix()
-            glTranslatef(self.Position[0], self.Position[1], self.Position[2])
-            glScaled(2, 2, 2)
-            glColor3f(1.0, 1.0, 1.0)
+        glPushMatrix()
+        glTranslatef(self.Position[0], self.Position[1], self.Position[2])
+        # glScaled(2, 2, 2)
+        glColor3f(1.0, 1.0, 1.0)
 
-            glEnable(GL_TEXTURE_2D)
-            glBindTexture(GL_TEXTURE_2D, self.textures[self.txtIndex])
+        glEnable(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, self.textures[self.txtIndex])
 
-            glBegin(GL_QUADS)
+        glBegin(GL_QUADS)
 
-            W = self.W_H_D[0]
-            H = self.W_H_D[1]
-            D = self.W_H_D[2]
+        W = self.W_H_D[0]
+        H = self.W_H_D[1]
+        D = self.W_H_D[2]
 
-            # Front face, we use Width and Depth
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(0, 0, 0)
-            glTexCoord2f(1.0, 0.0)
-            glVertex3d(W, 0, 0)
-            glTexCoord2f(1.0, 1.0)
-            glVertex3d(W, 0, D)
-            glTexCoord2f(0.0, 1.0)
-            glVertex3d(0, 0, D)
+        # Front face, we use Width and Depth
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(0, 0, 0)
+        glTexCoord2f(1.0, 0.0)
+        glVertex3d(W, 0, 0)
+        glTexCoord2f(1.0, 1.0)
+        glVertex3d(W, 0, D)
+        glTexCoord2f(0.0, 1.0)
+        glVertex3d(0, 0, D)
 
-            # Back face use Width and Depth , but now with Height
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(0, H, 0)
-            glTexCoord2f(1.0, 0.0)
-            glVertex3d(W, H, 0)
-            glTexCoord2f(1.0, 1.0)
-            glVertex3d(W, H, D)
-            glTexCoord2f(0.0, 1.0)
-            glVertex3d(0, H, D)
+        # Back face use Width and Depth , but now with Height
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(0, H, 0)
+        glTexCoord2f(1.0, 0.0)
+        glVertex3d(W, H, 0)
+        glTexCoord2f(1.0, 1.0)
+        glVertex3d(W, H, D)
+        glTexCoord2f(0.0, 1.0)
+        glVertex3d(0, H, D)
 
-            # Left face (use Height and Depth)
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(0,0, 0)
-            glTexCoord2f(1.0, 0.0)
-            glVertex3d(0, H, 0)
-            glTexCoord2f(1.0, 1.0)
-            glVertex3d(0, H, D)
-            glTexCoord2f(0.0, 1.0)
-            glVertex3d(0, 0, D)
+        # Left face (use Height and Depth)
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(0,0, 0)
+        glTexCoord2f(1.0, 0.0)
+        glVertex3d(0, H, 0)
+        glTexCoord2f(1.0, 1.0)
+        glVertex3d(0, H, D)
+        glTexCoord2f(0.0, 1.0)
+        glVertex3d(0, 0, D)
 
-            # Right face (use Height and Depth) but now with Width
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(W,0, 0)
-            glTexCoord2f(1.0, 0.0)
-            glVertex3d(W, H, 0)
-            glTexCoord2f(1.0, 1.0)
-            glVertex3d(W, H, D)
-            glTexCoord2f(0.0, 1.0)
-            glVertex3d(W, 0, D)
+        # Right face (use Height and Depth) but now with Width
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(W,0, 0)
+        glTexCoord2f(1.0, 0.0)
+        glVertex3d(W, H, 0)
+        glTexCoord2f(1.0, 1.0)
+        glVertex3d(W, H, D)
+        glTexCoord2f(0.0, 1.0)
+        glVertex3d(W, 0, D)
 
-            # Top face (use Width and Height)
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(0, 0, 0)
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(W, 0, 0)
-            glTexCoord2f(1.0, 1.0)
-            glVertex3d(W, H, 0)
-            glTexCoord2f(0.0, 1.0)
-            glVertex3d(0, H, 0)
+        # Top face (use Width and Height)
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(0, 0, 0)
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(W, 0, 0)
+        glTexCoord2f(1.0, 1.0)
+        glVertex3d(W, H, 0)
+        glTexCoord2f(0.0, 1.0)
+        glVertex3d(0, H, 0)
 
-            # Bottom face (use Width and Height) but now with Depth
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(0, 0, D)
-            glTexCoord2f(0.0, 0.0)
-            glVertex3d(W, 0, D)
-            glTexCoord2f(1.0, 1.0)
-            glVertex3d(W, H, D)
-            glTexCoord2f(0.0, 1.0)
-            glVertex3d(0, H, D)
-
+        # Bottom face (use Width and Height) but now with Depth
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(0, 0, D)
+        glTexCoord2f(0.0, 0.0)
+        glVertex3d(W, 0, D)
+        glTexCoord2f(1.0, 1.0)
+        glVertex3d(W, H, D)
+        glTexCoord2f(0.0, 1.0)
+        glVertex3d(0, H, D)
 
 
-            glEnd()
-            glDisable(GL_TEXTURE_2D)
 
-            glPopMatrix()
+        glEnd()
+        glDisable(GL_TEXTURE_2D)
+
+        glPopMatrix()
+
+    def draw_ordenada(self):
+    #Se muevea a la posicion ordenada
+        glPushMatrix()
+        glTranslatef(self.orderedPosition[0], self.orderedPosition[1], self.orderedPosition[2])
+
+        self.W_H_D = self.ordered_W_H_D
+        self.draw()
+        glPopMatrix()
+
+

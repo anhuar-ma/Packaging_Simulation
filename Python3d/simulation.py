@@ -13,6 +13,7 @@ import sys
 sys.path.append('..')
 from Lifter import Lifter
 from Basura import Basura
+from Contenedor import Contenedor
 
 #Necesario para Julia
 import requests
@@ -146,6 +147,8 @@ def Init():
     #Creacion de basuras y robots
     i = 0
 
+Contenedores = []
+
 for i in range(len(datos["agents"])):
     if datos["agents"][i]["type"] == "Box":
         box = datos["agents"][i]
@@ -158,21 +161,34 @@ for i in range(len(datos["agents"])):
             escala * box["ordered_position"][1],
             escala * box["ordered_position"][2],
             box["rotation"],
-            box["dimension"][0],
-            box["dimension"][1],
-            box["dimension"][2]
+            escala * box["dimension"][0],
+            escala * box["dimension"][1],
+            escala * box["dimension"][2]
             ))
     elif datos["agents"][i]["type"] == "Robot":
         robot = datos["agents"][i]
         lifters.append(Lifter(
             DimBoard, 0.7, textures,
-            robot["pos"][0] * escala,
-            robot["pos"][1] * escala,
+            escala * robot["pos"][0],
+            escala * robot["pos"][1],
             robot["id"]
+        ))
+    elif datos["agents"][i]["type"] == "Contenedor":
+        contenedor = datos["agents"][i]
+        Contenedores.append(Contenedor(
+            escala * contenedor["position"][0],
+            escala * contenedor["position"][1],
+            escala * contenedor["dimension"][0],
+            escala * contenedor["dimension"][1],
+            escala * contenedor["dimension"][2]
         ))
 
 #primera caja para sacar
 anterior =datos["queue_front"]
+
+#creacion de contenedor
+
+
 
 def planoText():
     # activate textures
@@ -196,24 +212,27 @@ def planoText():
     glEnd()
     # glDisable(GL_TEXTURE_2D)
 
-def checkCollisions():
-    for c in lifters:
-        for b in basuras:
-            distance = math.sqrt(math.pow((b.Position[0] - c.Position[0]), 2) + math.pow((b.Position[2] - c.Position[2]), 2))
-            if distance <= c.radiusCol:
-                if c.status == 0 and b.alive:
-                    b.alive = False
-                    c.status = 1
-                #print("Colision detectada")
+# def checkCollisions():
+#     for c in lifters:
+#         for b in basuras:
+#             distance = math.sqrt(math.pow((b.Position[0] - c.Position[0]), 2) + math.pow((b.Position[2] - c.Position[2]), 2))
+#             if distance <= c.radiusCol:
+#                 if c.status == 0 and b.alive:
+#                     b.alive = False
+#                     c.status = 1
+#                 #print("Colision detectada")
+
+box_in_container = Basura()
 
 def display():
+    global box_in_container
     response = requests.get(URL_BASE + LOCATION)
     datos = response.json()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    print(datos)
-    print("-------------------------")
+    #  print(datos)
+    # print("-------------------------")
     # Se dibujan los robots
     index = 0
     for i in range(cantidad_robots):
@@ -225,9 +244,19 @@ def display():
         box_id = datos["agents"][i]["box_id"]
         lifters[index].update(posX, posZ, angle, status, platformHeight,box_id)
         lifters[index].draw()
+
+        print("platformHeight ", platformHeight)
+        print("status ", status)
+        print("box_in_container ", box_in_container.id)
+        print("-"*100)
+        if status == 4 and platformHeight == -150 and box_in_container.id != -1:
+            Contenedores[0].update(box_in_container)
+            box_in_container = Basura()
+
+
         index += 1
     index = 0
-    print("Cantidad de basuras: ", len(datos["agents"]) - (cantidad_robots))
+    # print("Cantidad de basuras: ", len(datos["agents"]) - (cantidad_robots))
 
     # for i in range(cantidad_robots, len(datos["agents"]) - cantidad_robots):
     #     posX = datos["agents"][i]["pos"][0] * escala
@@ -244,7 +273,10 @@ def display():
     for box in basuras:
         box.draw()
         print("Box id: ", box.id)
+        print("Box position: ", box.Position)
         print("Anterior: ", anterior)
+        print("basuras size: " , len(basuras))
+        print("rotation" , box.rotationType)
         if(anterior !=datos["queue_front"] and anterior != -1 and anterior == box.id):
             #Cuando la basura se elimina se le van a mandar las dimiensiones al lifter
             print("A"*1000)
@@ -252,14 +284,17 @@ def display():
                 if lifter.box_id == box.id:
                     box.Position = [0,0,0]
                     lifter.getTrash(box)
-                    print("A"*1000)
+                    print("A"*20)
+                    # Contenedores[0].update(box)
+                    box_in_container = box
                     break
 
             basuras = [box2 for box2 in basuras if box2.id != anterior]
 
     anterior = datos["queue_front"]
 
-
+    for contenedor in Contenedores:
+        contenedor.draw()
 
 
     # Se dibuja el incinerador
@@ -327,7 +362,7 @@ def display():
     glVertex3d(-DimBoard, wall_height, -DimBoard)
     glEnd()
 
-    checkCollisions()
+    # checkCollisions()
 
 def lookAt():
     glLoadIdentity()

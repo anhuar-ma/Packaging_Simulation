@@ -135,7 +135,7 @@ for line in file:
 # calculate packing
 packer.pack(
 
-    bigger_first=False,
+    bigger_first=True,
     distribute_items=False,
     fix_point=True, # Try switching fix_point=True/False to compare the results
     check_stable=False,

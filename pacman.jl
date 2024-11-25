@@ -48,15 +48,19 @@ end
 
 end
 
-@agent struct Estante(GridAgent{2})
-    type::String = "Estante"
+
+#Hacer que el estante guarde una variable que permita decir cuantas cajas tiene
+@agent struct Contenedor(GridAgent{2})
+    type::String = "Contenedor"
     cantidad_cajas::Int = 0
+    position::Vector{Int} = [0, 0]
+    dimension::Vector{Int} = [1, 1, 1]
 end
 
 function agent_step!(agent::Box, model)
     # print(agent.pos)
 end
-function agent_step!(agent::Estante, model)
+function agent_step!(agent::Contenedor, model)
     # print(agent.pos)
 end
 
@@ -98,6 +102,7 @@ function agent_step!(agent::Robot, model)
             println("------------------------------------")
             println("Box")
             println(box.id)
+            println(box.pos)
             plan_route!(agent, box.pos, pathfinder)
             # print("algoooooooooooo2222222")
         end
@@ -152,28 +157,46 @@ end
 
 function initialize_model()
     # Se crea una grid de 50x50
+    grid = trues(50, 50)
     space = GridSpace((50, 50); periodic=false, metric=:manhattan)
-    model = StandardABM(Union{Robot,Box,Estante}, space; agent_step!)
+    model = StandardABM(Union{Robot,Box,Contenedor}, space; agent_step!)
     #Se agregan los robots
     #Supongamos que solo hay uno
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(50, 1), model)
 
     # #Se agregan las posiciones de las cajas
+    x = rand(1:50)
+    y = rand(1:50)
 
-    for i in 1:10
-        add_agent!(Box, pos=(rand(1:50), rand(1:50)), model)
+    for i in 1:3
+        while length((ids_in_position((x, y), model))) > 0
+            x = rand(1:50)
+            y = rand(1:50)
+        end
+        add_agent!(Box, pos=(x, y), model)
+        println("Box pos", x, " ", y)
     end
 
+    println("ids in 1,1")
+    println(length((ids_in_position((1, 1), model))))
+
     #Se agrega el estante teniendo la ultima id
-    add_agent!(Estante, pos=(1, 1), model)
+    add_agent!(Contenedor, model, position=[-10, -10], dimension=[3, 1, 30])
 
     #TODO: dar opciones de cajas en vez de random
     #Se crean aleatoramiente las dimiensiones de las cajas
     for box in allagents(model)
         if box.type == "Box"
-            box.dimension = [rand(1:5), rand(1:5), rand(1:5)]
+            box.dimension = [1, 3, 9]
+            # box.dimension = [rand(1:7), rand(1:7), rand(1:7)]
+            #para indicar que el robot no pueda pasar por la caja
+            grid[box.pos[1], box.pos[2]] = false
         end
     end
+
+    add_agent!(Box, pos=(1, 1), dimension=[1, 10, 30], model)
+
+    # pathfinder = AStar(space; walkmap=grid, diagonal_movement=false)
     pathfinder = AStar(space; diagonal_movement=false)
 
     open("box_dimensions.txt", "w") do file
@@ -228,7 +251,7 @@ function initialize_model()
     end
 
 
-
+    # println(grid)
     return model, pathfinder, queue_cajas
 end
 

@@ -84,6 +84,10 @@ class Lifter:
         self.platformHeight = platformHeight * 0.01
         self.box_id = box_id
 
+        if self.platformHeight == -1.5:
+                print("NO"*100)
+                self.basura = None
+
 
     def draw(self):
         glPushMatrix()
@@ -193,6 +197,7 @@ class Lifter:
         glPushMatrix()
         if self.status == 2 or self.status == 3 or self.status == 4:
             self.drawTrash()
+
         glColor3f(0.0, 0.0, 0.0)
         glTranslatef(0, self.platformHeight, 0)  # Up and down
         glBegin(GL_QUADS)
@@ -224,7 +229,7 @@ class Lifter:
 
         # glBegin(GL_QUADS)
         if self.basura != None:
-            print("O"*1000)
+            # print("O"*10)
             self.basura.draw()
 
         # glEnd()
