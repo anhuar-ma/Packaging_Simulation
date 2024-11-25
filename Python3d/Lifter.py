@@ -10,9 +10,11 @@ from OpenGL.GLUT import *
 import random
 import math
 
+from Basura import Basura
+
 
 class Lifter:
-    def __init__(self, dim, vel, textures,posX,posZ):
+    def __init__(self, dim, vel, textures,posX,posZ,id):
         self.dim = dim
         # Se inicializa una posicion aleatoria en el tablero
         # self.Position = [random.randint(-dim, dim), 6, random.randint(-dim, dim)]
@@ -50,6 +52,14 @@ class Lifter:
         #2 = delivering
         #3 = dropping
         #4 = returning
+        #Un objecto de la clase Basura que se recibe cuando se recoje
+        self.basura = None
+
+        #id del lifter de julia
+        self.id = id
+
+        #id de la caja que lleva
+        self.box_id = -1
 
     def search(self):
         # Change direction to random
@@ -66,12 +76,13 @@ class Lifter:
         self.Direction = [(dirX / magnitude), 0, (dirZ / magnitude)]
 
     #Se actualizan las variables del objeto segun julia
-    def update(self,posX,posZ,angle,status,platformHeight):
+    def update(self,posX,posZ,angle,status,platformHeight,box_id):
         #Se esta recogiendo la caja
         self.Position = [posX, 6, posZ]
         self.angle = angle
         self.status = status
         self.platformHeight = platformHeight * 0.01
+        self.box_id = box_id
 
 
     def draw(self):
@@ -197,78 +208,26 @@ class Lifter:
         glPopMatrix()
         glPopMatrix()
 
+
+    def getTrash(self,basura):
+        self.basura = basura
+
+
     def drawTrash(self):
         glPushMatrix()
         glTranslatef(2, (self.platformHeight + 1.5), 0)
-        glScaled(0.5, 0.5, 0.5)
+        glScaled(0.2, 0.2, 0.2)
         glColor3f(1.0, 1.0, 1.0)
 
         glEnable(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, self.textures[3])
 
-        glBegin(GL_QUADS)
+        # glBegin(GL_QUADS)
+        if self.basura != None:
+            print("O"*1000)
+            self.basura.draw()
 
-        # Front face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(1, 1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(-1, 1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(-1, -1, 1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(1, -1, 1)
-
-        # Back face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, 1, -1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, 1, -1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, -1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, -1, -1)
-
-        # Left face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, 1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(-1, 1, -1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(-1, -1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, -1, 1)
-
-        # Right face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(1, 1, -1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, 1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, -1, 1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(1, -1, -1)
-
-        # Top face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, 1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, 1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, 1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, 1, -1)
-
-        # Bottom face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, -1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, -1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, -1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, -1, -1)
-
-        glEnd()
+        # glEnd()
         glDisable(GL_TEXTURE_2D)
 
         glPopMatrix()

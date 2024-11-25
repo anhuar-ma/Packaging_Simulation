@@ -16,6 +16,9 @@ class Basura:
        #id de la caja de julia
         self.id = Id
 
+        #id del robot que la var a llevar
+        self.robotID = 0
+
         # Se inicializa las coordenadas de los vertices del cubo
         self.vertexCoords = [1,1,1,1,1,-1,1,-1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,-1,-1,-1,-1,1,]
 

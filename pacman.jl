@@ -29,7 +29,7 @@ queue_cajas = Queue{Int}()
     objective_position::Vector{Int} = [0, 0]
 
     #la caja que el robot esta manipulando
-    box_id::Int = 0
+    box_id::Int = -1
 
     #counter para las iteraciones
     platformHeight::Int = -150
@@ -41,8 +41,8 @@ end
     #tiene dimensiones
     dimension::Vector{Int} = [1, 1, 1]
     ordered_position::Vector{Int} = [1, 1, 1]
-    #si la caja va a ser manejada por un robot
-    targeted::Bool = false
+    #si la caja va a ser manejada por un robot, es la id del robot
+    # robot_id::Int = 0
     #rotacion de la caja dadaba por package bin
     rotation::Int = 0
 
@@ -74,6 +74,7 @@ function agent_step!(agent::Robot, model)
             box = model[first(queue_cajas)]
             agent.state = 1
             agent.objective_position = collect(box.pos)
+            # box.robot_id = agent.id
             agent.box_id = box.id
             println("------------------------------------")
             println("Box")
@@ -97,6 +98,8 @@ function agent_step!(agent::Robot, model)
             remove_agent!(model[agent.box_id], model)
             dequeue!(queue_cajas)
             plan_route!(agent, (1, 1), pathfinder)
+            #la box id cambia a -1
+            # agent.box_id = -1
         end
         #Se esta recogiendo la caja, levantanto la plataforma
     elseif agent.state == 2

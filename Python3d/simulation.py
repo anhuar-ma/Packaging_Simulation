@@ -141,10 +141,9 @@ def Init():
     for i in filenames:
         Texturas(i)
 
-    for i in range(cantidad_robots):
-        lifters.append(Lifter(DimBoard, 0.7, textures,0,0))
 
-    #Creacion de basuras
+
+    #Creacion de basuras y robots
     i = 0
 
 for i in range(len(datos["agents"])):
@@ -163,6 +162,14 @@ for i in range(len(datos["agents"])):
             box["dimension"][1],
             box["dimension"][2]
             ))
+    elif datos["agents"][i]["type"] == "Robot":
+        robot = datos["agents"][i]
+        lifters.append(Lifter(
+            DimBoard, 0.7, textures,
+            robot["pos"][0] * escala,
+            robot["pos"][1] * escala,
+            robot["id"]
+        ))
 
 #primera caja para sacar
 anterior =datos["queue_front"]
@@ -215,7 +222,8 @@ def display():
         angle = datos["agents"][i]["looking_at"]
         status = datos["agents"][i]["state"]
         platformHeight = datos["agents"][i]["platformHeight"]
-        lifters[index].update(posX, posZ, angle, status, platformHeight)
+        box_id = datos["agents"][i]["box_id"]
+        lifters[index].update(posX, posZ, angle, status, platformHeight,box_id)
         lifters[index].draw()
         index += 1
     index = 0
@@ -235,10 +243,21 @@ def display():
 
     for box in basuras:
         box.draw()
-        if(anterior !=datos["queue_front"] and anterior != -1):
-            # Assuming basuras is a list of objects with a parameter 'id'
+        print("Box id: ", box.id)
+        print("Anterior: ", anterior)
+        if(anterior !=datos["queue_front"] and anterior != -1 and anterior == box.id):
+            #Cuando la basura se elimina se le van a mandar las dimiensiones al lifter
+            print("A"*1000)
+            for lifter in lifters:
+                if lifter.box_id == box.id:
+                    box.Position = [0,0,0]
+                    lifter.getTrash(box)
+                    print("A"*1000)
+                    break
+
             basuras = [box2 for box2 in basuras if box2.id != anterior]
-        anterior = datos["queue_front"]
+
+    anterior = datos["queue_front"]
 
 
 

@@ -102,7 +102,6 @@ def display():
         return
 
     print(datos)
-    print("----------------------------------------------------------------------")
 
 
     #empezaran viendo hacia la derecha porque su ruta sera
