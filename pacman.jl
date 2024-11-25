@@ -14,7 +14,7 @@ queue_cajas = Queue{Int}()
     limit::NTuple{2,Int} = (0, 0)
 
     # 90 is up, 270 is down, 0 is right, 180 is left
-    looking_at::Int = 0
+    angle::Int = 0
 
     finished::Bool = false
 
@@ -60,6 +60,25 @@ function agent_step!(agent::Estante, model)
     # print(agent.pos)
 end
 
+
+# Move the agent along the route and update its rotation
+function move_along_route_with_angle!(agent::Robot, model, pathfinder)
+    past_pos = agent.pos
+    move_along_route!(agent, model, pathfinder)
+    dx = agent.pos[1] - past_pos[1]
+    dy = agent.pos[2] - past_pos[2]
+    if dx == -1
+        agent.angle = 0   # Right
+    elseif dx == 1
+        agent.angle = 180 # Left
+    elseif dy == 1
+        agent.angle = 90  # Up
+    elseif dy == -1
+        agent.angle = 270 # Down
+    end
+end
+
+
 function agent_step!(agent::Robot, model)
     # println("fuaaaaaaaaaaaaa")
     # println("agent.state")
@@ -84,7 +103,7 @@ function agent_step!(agent::Robot, model)
         end
     elseif agent.state == 1
         #si ya encontró la caja, se mueve a ella
-        move_along_route!(agent, model, pathfinder)
+        move_along_route_with_angle!(agent, model, pathfinder)
 
         #si ya llegó a la caja se cambia de estado y se elimina la caja
         # println("agent pos")
@@ -112,7 +131,7 @@ function agent_step!(agent::Robot, model)
         #Se esta moviendo la caja a su posicion ordenada,es decir al camion
     elseif agent.state == 3
         #si ya encontró la caja, se mueve al carro para ordenarla
-        move_along_route!(agent, model, pathfinder)
+        move_along_route_with_angle!(agent, model, pathfinder)
         #si ya se llego al estante, se cambia de estado
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
             agent.state = 4

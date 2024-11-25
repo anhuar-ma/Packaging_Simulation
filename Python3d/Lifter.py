@@ -88,7 +88,7 @@ class Lifter:
     def draw(self):
         glPushMatrix()
         glTranslatef(self.Position[0], self.Position[1], self.Position[2])
-        glRotatef(self.angle, 0, 1, 0)
+        glRotatef(self.angle + 180 , 0, 1, 0)
         glScaled(5, 5, 5)
         glColor3f(1.0, 1.0, 1.0)
         # front face

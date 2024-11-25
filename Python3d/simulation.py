@@ -219,7 +219,7 @@ def display():
     for i in range(cantidad_robots):
         posX = datos["agents"][i]["pos"][0] * escala
         posZ = datos["agents"][i]["pos"][1] * escala
-        angle = datos["agents"][i]["looking_at"]
+        angle = datos["agents"][i]["angle"]
         status = datos["agents"][i]["state"]
         platformHeight = datos["agents"][i]["platformHeight"]
         box_id = datos["agents"][i]["box_id"]
