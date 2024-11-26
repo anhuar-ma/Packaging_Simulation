@@ -119,7 +119,7 @@ function agent_step!(agent::Robot, model)
 
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
             agent.state = 2
-            agent.objective_position = [50, 1]
+            agent.objective_position = [1, 50] #Aquí deja las cajas
             remove_agent!(model[agent.box_id], model)
             # dequeue!(queue_cajas)
             plan_route!(agent, (agent.objective_position[1],agent.objective_position[2]), pathfinder)
@@ -159,7 +159,8 @@ end
 
 function initialize_model()
     # Se crea una grid de 50x50
-    grid_n = 100
+    
+    grid_n = 100 #Espacio del Grid
     grid = trues(grid_n, grid_n)
     space = GridSpace((grid_n,grid_n); periodic=false, metric=:manhattan)
     model = StandardABM(Union{Robot,Box,Contenedor}, space; agent_step!)
@@ -190,7 +191,7 @@ function initialize_model()
     #H = alto
     #D = largo
 
-    add_agent!(Contenedor, model, position=[-30, -11], dimension=[30, 20, 22])
+    add_agent!(Contenedor, model, position=[-30, 50], dimension=[30, 20, 22])
 
     #TODO: dar opciones de cajas en vez de random
     #Se crean aleatoramiente las dimiensiones de las cajas
