@@ -5,6 +5,7 @@ using CairoMakie
 using PyCall
 using DataStructures
 queue_cajas = Queue{Int}()
+queue_cajas_checador = Queue{Int}()
 
 @agent struct Robot(GridAgent{2})
     type::String = "Robot"
@@ -93,8 +94,8 @@ function agent_step!(agent::Robot, model)
         #Se busca la caja de la queue(la caja que sigue)
         if (!isempty(queue_cajas))
             #Cambio de lugar a que se elimine de la pila cuando se recoja
-            # box = model[dequeue!(queue_cajas)]
-            box = model[first(queue_cajas)]
+            box = model[dequeue!(queue_cajas)]
+            # box = model[first(queue_cajas)]
             agent.state = 1
             agent.objective_position = collect(box.pos)
             # box.robot_id = agent.id
@@ -120,7 +121,7 @@ function agent_step!(agent::Robot, model)
             agent.state = 2
             agent.objective_position = [1, 1]
             remove_agent!(model[agent.box_id], model)
-            dequeue!(queue_cajas)
+            # dequeue!(queue_cajas)
             plan_route!(agent, (1, 1), pathfinder)
             #la box id cambia a -1
             # agent.box_id = -1
@@ -138,11 +139,12 @@ function agent_step!(agent::Robot, model)
         #si ya encontró la caja, se mueve al carro para ordenarla
         move_along_route_with_angle!(agent, model, pathfinder)
         #si ya se llego al estante, se cambia de estado
-        if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
+        if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2] && agent.box_id == first(queue_cajas_checador)
             agent.state = 4
+            dequeue!(queue_cajas_checador)
         end
         # println("algoooooooooooo")
-        #Se va a dejar caer la caja,bajando la plataforma
+        #estado 4 Se va a dejar caer la caja,bajando la plataforma
     else
         if agent.platformHeight <= -150
             agent.state = 0
@@ -163,12 +165,13 @@ function initialize_model()
     #Se agregan los robots
     #Supongamos que solo hay uno
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(50, 1), model)
+    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(49, 1), model)
 
     # #Se agregan las posiciones de las cajas
     x = rand(1:50)
     y = rand(1:50)
 
-    for i in 1:3
+    for i in 1:20
         while length((ids_in_position((x, y), model))) > 0
             x = rand(1:50)
             y = rand(1:50)
@@ -192,14 +195,14 @@ function initialize_model()
     #Se crean aleatoramiente las dimiensiones de las cajas
     for box in allagents(model)
         if box.type == "Box"
-            box.dimension = [1, 3, 9]
-            # box.dimension = [rand(1:7), rand(1:7), rand(1:7)]
+            # box.dimension = [1, 3, 9]
+            box.dimension = [rand(3:7), rand(3:7), rand(3:7)]
             #para indicar que el robot no pueda pasar por la caja
             grid[box.pos[1], box.pos[2]] = false
         end
     end
 
-    add_agent!(Box, pos=(1, 1), dimension=[20, 30, 10], model)
+    # add_agent!(Box, pos=(1, 1), dimension=[20, 30, 10], model)
 
     # pathfinder = AStar(space; walkmap=grid, diagonal_movement=false)
     pathfinder = AStar(space; diagonal_movement=false)
@@ -240,9 +243,11 @@ function initialize_model()
 
     #Se crea una queue para guardar el orden de las cajas
 
-    global queue_cajas
+    global queue_cajas, queue_cajas_checador
+
 
     empty!(queue_cajas)
+    empty!(queue_cajas_checador)
 
     # Process each line
     for line in lines
@@ -254,6 +259,7 @@ function initialize_model()
         #parts[1] is the id of the box
         println(parts[1])
         enqueue!(queue_cajas, parse(Int, parts[1]))
+        enqueue!(queue_cajas_checador, parse(Int, parts[1]))
         #position is the orderede position of the box
         position = eval(Meta.parse("[" * parts[2] * "]"))  # Convert the second part (the list) to a J
         println(position)
@@ -263,10 +269,12 @@ function initialize_model()
         model[parse(Int, parts[1])].rotation = parse(Int, parts[3])
         # println("Number: $number, Array: $array")
     end
-
-
+    #=
+    Queue cajas checador es una copia de queue cajas que usaremos para saber si
+    la caja que tenemos es la que sigue, si no , esperamos a que sea
+    =#
     # println(grid)
-    return model, pathfinder, queue_cajas
+    return model, pathfinder
 end
 
 model, pathfinder = initialize_model()

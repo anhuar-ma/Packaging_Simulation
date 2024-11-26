@@ -226,13 +226,16 @@ box_in_container = Basura()
 
 def display():
     global box_in_container
+    global basuras
+    global anterior
+
     response = requests.get(URL_BASE + LOCATION)
     datos = response.json()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    #  print(datos)
-    # print("-------------------------")
+    print(datos)
+    print("-------------------------")
     # Se dibujan los robots
     index = 0
     for i in range(cantidad_robots):
@@ -245,13 +248,26 @@ def display():
         lifters[index].update(posX, posZ, angle, status, platformHeight,box_id)
         lifters[index].draw()
 
-        # print("platformHeight ", platformHeight)
-        # print("status ", status)
-        # print("box_in_container ", box_in_container.id)
-        # print("-"*100)
-        if status == 4 and platformHeight == -150 and box_in_container.id != -1:
-            Contenedores[0].update(box_in_container)
-            box_in_container = Basura()
+        print("platformHeight ", platformHeight)
+        print("status ", status)
+        print("box_in_container ", box_in_container.id)
+        print("-"*100)
+
+        # Se agrega al lifter la caja
+        if status == 2 and platformHeight == -150 and box_id != -1:
+            for box in basuras:
+                if box.id == box_id:
+                    lifters[index].getTrash(box)
+                    basuras.remove(box)
+                    # box_in_container = box
+                    break
+        #Cuando el lifter la deja, se agrega al contenedor
+        # if status == 4 and platformHeight == -150 and box_in_container.id != -1:
+        if status == 4 and platformHeight == -150:
+            # Contenedores[0].update(box_in_container)
+            Contenedores[0].update(lifters[index].basura)
+            lifters[index].basura = None
+            # box_in_container = Basura()
 
 
         index += 1
@@ -267,8 +283,7 @@ def display():
     #     basuras[index].draw()
     #     index += 1
 
-    global basuras
-    global anterior
+
 
     for box in basuras:
         box.draw()
@@ -277,21 +292,21 @@ def display():
         print("Anterior: ", anterior)
         print("basuras size: " , len(basuras))
         print("rotation" , box.rotationType)
-        if(anterior !=datos["queue_front"] and anterior != -1 and anterior == box.id):
-            #Cuando la basura se elimina se le van a mandar las dimiensiones al lifter
-            # print("A"*1000)
-            for lifter in lifters:
-                if lifter.box_id == box.id:
-                    box.Position = [0,0,0]
-                    lifter.getTrash(box)
-                    # print("A"*20)
-                    # Contenedores[0].update(box)
-                    box_in_container = box
-                    break
+        # if(anterior !=datos["queue_front"] and anterior != -1 and anterior == box.id):
+        #     #Cuando la basura se elimina se le van a mandar las dimiensiones al lifter
+        #     print("A"*1000)
+        #     for lifter in lifters:
+        #         if lifter.box_id == box.id:
+        #             box.Position = [0,0,0]
+        #             lifter.getTrash(box)
+        #             print("A"*20)
+        #             # Contenedores[0].update(box)
+        #             box_in_container = box
+        #             break
 
-            basuras = [box2 for box2 in basuras if box2.id != anterior]
+        #     basuras = [box2 for box2 in basuras if box2.id != anterior]
 
-    anterior = datos["queue_front"]
+    # anterior = datos["queue_front"]
 
     for contenedor in Contenedores:
         contenedor.draw()
