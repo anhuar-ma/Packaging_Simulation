@@ -18,15 +18,15 @@ packer = Packer()
 
 # Evergreen Real Container (20ft Steel Dry Cargo Container)
 # Unit cm/kg
-box = Bin(
-    partno='example0',
-    WHD=(30,10,20),
-    max_weight=28080,
-    corner=0,
-    put_type=1
-)
+# box = Bin(
+#     partno='example0',
+#     WHD=(30,10,20),
+#     max_weight=28080,
+#     corner=0,
+#     put_type=1
+# )
 
-packer.addBin(box)
+# packer.addBin(box)
 
 # dyson DC34 (20.5 * 11.5 * 32.2 ,1.33kg)
 # 64 pcs per case ,  82 * 46 * 170 (85.12)
@@ -108,25 +108,47 @@ for line in file:
     print(line)
     print("-------------")
     print("Parts")
-    print(parts)
-    # print("parts 0")
-    # print(parts[0])
+    # print(parts)
+    print("parts 0")
+    print(parts[0])
+
+    parts2 = parts[0].split(' ')
+
+    print(parts2[0])
     # print("parts 1")
     # print(parts[1])
 
 
     dimensions =  ast.literal_eval('['+parts[1])
-    packer.addItem(Item(
-        partno='{}'.format(str(parts[0])),
-        name='server',
-        typeof='cube',
-        WHD=(dimensions[0], dimensions[1], dimensions[2]),
-        weight=20,
-        level=1,
-        loadbear=100,
-        updown=True,
-        color='#0000E3')
-    )
+
+    print("Dimensions")
+    print(dimensions)
+
+    print("-------------")
+
+    if(parts2[0] == "Contenedor"):
+        print("Algo"*20)
+        box = Bin(
+            partno='Continer {}'.format(str(parts2[1])),
+            WHD=(dimensions[0],dimensions[1],dimensions[2]),
+            max_weight=28080,
+            corner=0,
+            put_type=1
+        )
+        packer.addBin(box)
+
+    else:
+        packer.addItem(Item(
+            partno='{}'.format(str(parts[0])),
+            name='server',
+            typeof='cube',
+            WHD=(dimensions[0], dimensions[1], dimensions[2]),
+            weight=1,
+            level=1,
+            loadbear=100,
+            updown=True,
+            color='#0000E3')
+        )
 
 
 

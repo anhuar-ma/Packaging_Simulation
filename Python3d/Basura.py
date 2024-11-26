@@ -13,7 +13,7 @@ import math
 class Basura:
     # def __init__(self, dim, vel, textures, txtIndex,Id,posX,posZ,oX,oY,oZ,rotation,W,H,D):
     def __init__(self, dim=None, vel=1, textures=None, txtIndex=0, Id=-1, posX=0, posZ=0, oX=0, oY=0, oZ=0, rotation=0, W=1, H=1, D=1):
-        # id de la caja de julia
+
        #id de la caja de julia
         self.id = Id
 
@@ -35,25 +35,41 @@ class Basura:
         self.rotationType = rotation
         #width, height, depth
         #changing the order because of opengl is different
-        self.W_H_D = [H,D,W]
+        self.W_H_D = [W,H,D]
 
         # Inicializar las coordenadas (x,y,z) del cubo en el tablero
         # almacenandolas en el vector Position
         # ...
         # Se inicializa un vector de direccion aleatorio
-        self.ordered_W_H_D = self.W_H_D
+        self.ordered_W_H_D = [W,H,D]
 
-        if self.rotationType == 1:
+        tempW_H_D = [W,H,D]
+
+        self.W_H_D = [W,D,H]
+
+        print("rotationType",self.rotationType)
+        if self.rotationType == 0:
+            self.ordered_W_H_D = [self.W_H_D[0],self.W_H_D[1],self.W_H_D[2]]
+        elif self.rotationType == 1:
             self.ordered_W_H_D = [self.W_H_D[1],self.W_H_D[0],self.W_H_D[2]]
         elif self.rotationType == 2:
+            print("ordered antes",self.ordered_W_H_D)
             self.ordered_W_H_D = [self.W_H_D[1],self.W_H_D[2],self.W_H_D[0]]
+            print("---")
+            print("WHD",self.W_H_D)
+            print("ordered",self.ordered_W_H_D)
+            # times = int(input("Cuantas veces quieres que se repita"))
+            # print("OLa"*times)
         elif self.rotationType == 3:
-            print("FUCK"*100)
             self.ordered_W_H_D = [self.W_H_D[2],self.W_H_D[1],self.W_H_D[0]]
         elif self.rotationType == 4:
             self.ordered_W_H_D = [self.W_H_D[2],self.W_H_D[0],self.W_H_D[1]]
         elif self.rotationType == 5:
             self.ordered_W_H_D = [self.W_H_D[0],self.W_H_D[2],self.W_H_D[1]]
+
+        self.ordered_W_H_D = [self.ordered_W_H_D[0],self.ordered_W_H_D[2],self.ordered_W_H_D[1]]
+
+        self.W_H_D = tempW_H_D
 
 
 
@@ -175,8 +191,16 @@ class Basura:
     #Se muevea a la posicion ordenada
         glPushMatrix()
         glTranslatef(self.orderedPosition[0], self.orderedPosition[1], self.orderedPosition[2])
-
+        self.Position = [0,0,0]
         self.W_H_D = self.ordered_W_H_D
+
+        print("basura")
+        # print("First WHD",self.firstW_H_D)
+        print("Current WHD",self.W_H_D)
+        print("Ordered WHD",self.ordered_W_H_D)
+        print("Rotation",self.rotationType)
+        print(self.Position)
+        print(self.orderedPosition)
         self.draw()
         glPopMatrix()
 

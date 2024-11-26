@@ -181,7 +181,12 @@ function initialize_model()
     println(length((ids_in_position((1, 1), model))))
 
     #Se agrega el estante teniendo la ultima id
-    add_agent!(Contenedor, model, position=[-10, -10], dimension=[3, 1, 30])
+    #(W,H,D)
+    #W = ancho
+    #H = alto
+    #D = largo
+
+    add_agent!(Contenedor, model, position=[-22, -30], dimension=[22, 20, 30])
 
     #TODO: dar opciones de cajas en vez de random
     #Se crean aleatoramiente las dimiensiones de las cajas
@@ -194,13 +199,22 @@ function initialize_model()
         end
     end
 
-    add_agent!(Box, pos=(1, 1), dimension=[1, 10, 30], model)
+    add_agent!(Box, pos=(1, 1), dimension=[20, 30, 10], model)
 
     # pathfinder = AStar(space; walkmap=grid, diagonal_movement=false)
     pathfinder = AStar(space; diagonal_movement=false)
 
     open("box_dimensions.txt", "w") do file
         # Iterate through the box and send the dimensions to the file
+        for agent in allagents(model)
+            if (agent.type == "Contenedor")
+                print(file, agent.type, " ")
+                print(file, agent.id, " ")
+                println(file, agent.dimension)
+                # println(file)  # Blank line for readability
+            end
+            # println(file)  # Blank line for readability
+        end
         for agent in allagents(model)
             if (agent.type == "Box")
                 print(file, "$(agent.id) ")
@@ -243,7 +257,7 @@ function initialize_model()
         #position is the orderede position of the box
         position = eval(Meta.parse("[" * parts[2] * "]"))  # Convert the second part (the list) to a J
         println(position)
-        model[parse(Int, parts[1])].ordered_position = position
+        model[parse(Int, parts[1])].ordered_position = [position[1], position[3], position[2]]
 
         #rotatcion de la caja, que se la 3 parte
         model[parse(Int, parts[1])].rotation = parse(Int, parts[3])

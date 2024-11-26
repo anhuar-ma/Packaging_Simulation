@@ -29,7 +29,7 @@ class Contenedor:
         self.Position = [posX, 0, posZ]
 
         #width, height, depth
-        self.W_H_D = [W,D,H]
+        self.W_H_D = [W,H,D]
 
         #array de cajas en el contenedor
         self.cajas = []
@@ -71,48 +71,51 @@ class Contenedor:
         glColor4f(1.0, 0.0, 0.0, 0.5)  # Set color with alpha for transparency
 
 
-
-        glBegin(GL_QUADS)
+        print("Contenedor")
+        print(self.W_H_D)
+        print(self.Position)
+        glBegin(GL_LINE_LOOP)
 
         W = self.W_H_D[0]
         H = self.W_H_D[1]
         D = self.W_H_D[2]
 
-        # # Front face, we use Width and Depth
-        # glVertex3d(0, 0, 0)
-        # glVertex3d(W, 0, 0)
-        # glVertex3d(W, 0, D)
-        # glVertex3d(0, 0, D)
 
-        # # Back face use Width and Depth , but now with Height
-        # glVertex3d(0, H, 0)
-        # glVertex3d(W, H, 0)
-        # glVertex3d(W, H, D)
-        # glVertex3d(0, H, D)
+        # Front face, we use Width and Depth
+        glVertex3d(0, 0, 0)
+        glVertex3d(W, 0, 0)
+        glVertex3d(W, 0, D)
+        glVertex3d(0, 0, D)
 
-        # # Left face (use Height and Depth)
-        # glVertex3d(0,0, 0)
-        # glVertex3d(0, H, 0)
-        # glVertex3d(0, H, D)
-        # glVertex3d(0, 0, D)
+        # Back face use Width and Depth , but now with Height
+        glVertex3d(0, H, 0)
+        glVertex3d(W, H, 0)
+        glVertex3d(W, H, D)
+        glVertex3d(0, H, D)
 
-        # # Right face (use Height and Depth) but now with Width
-        # glVertex3d(W,0, 0)
-        # glVertex3d(W, H, 0)
-        # glVertex3d(W, H, D)
-        # glVertex3d(W, 0, D)
+        # Left face (use Height and Depth)
+        glVertex3d(0,0, 0)
+        glVertex3d(0, H, 0)
+        glVertex3d(0, H, D)
+        glVertex3d(0, 0, D)
 
-        # # Top face (use Width and Height)
-        # glVertex3d(0, 0, 0)
-        # glVertex3d(W, 0, 0)
-        # glVertex3d(W, H, 0)
-        # glVertex3d(0, H, 0)
+        # Right face (use Height and Depth) but now with Width
+        glVertex3d(W,0, 0)
+        glVertex3d(W, H, 0)
+        glVertex3d(W, H, D)
+        glVertex3d(W, 0, D)
 
-        # # Bottom face (use Width and Height) but now with Depth
-        # glVertex3d(0, 0, D)
-        # glVertex3d(W, 0, D)
-        # glVertex3d(W, H, D)
-        # glVertex3d(0, H, D)
+        # Top face (use Width and Height)
+        glVertex3d(0, 0, 0)
+        glVertex3d(W, 0, 0)
+        glVertex3d(W, H, 0)
+        glVertex3d(0, H, 0)
+
+        # Bottom face (use Width and Height) but now with Depth
+        glVertex3d(0, 0, D)
+        glVertex3d(W, 0, D)
+        glVertex3d(W, H, D)
+        glVertex3d(0, H, D)
 
         glEnd()
         for caja in self.cajas:

@@ -1,7 +1,7 @@
 from .constants import RotationType, Axis
 from .auxiliary_methods import intersect, set2Decimal
 import numpy as np
-# required to plot a representation of Bin and contained items 
+# required to plot a representation of Bin and contained items
 from matplotlib.patches import Rectangle,Circle
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.art3d as art3d
@@ -61,7 +61,7 @@ class Item:
     def getMaxArea(self):
         ''' '''
         a = sorted([self.width,self.height,self.depth],reverse=True) if self.updown == True else [self.width,self.height,self.depth]
-    
+
         return set2Decimal(a[0] * a[1] , self.number_of_decimals)
 
 
@@ -171,10 +171,10 @@ class Bin:
                 if self.getTotalWeight() + item.weight > self.max_weight:
                     fit = False
                     return fit
-                
+
                 # fix point float prob
                 if self.fix_point == True :
-                        
+
                     [w,h,d] = dimension
                     [x,y,z] = [float(pivot[0]),float(pivot[1]),float(pivot[2])]
 
@@ -186,8 +186,8 @@ class Bin:
                         # fix depth
                         z = self.checkDepth([x,x+float(w),y,y+float(h),z,z+float(d)])
 
-                    # check stability on item 
-                    # rule : 
+                    # check stability on item
+                    # rule :
                     # 1. Define a support ratio, if the ratio below the support surface does not exceed this ratio, compare the second rule.
                     # 2. If there is no support under any vertices of the bottom of the item, then fit = False.
                     if self.check_stable == True :
@@ -216,7 +216,7 @@ class Bin:
                                 item.position = valid_item_position
                                 fit = False
                                 return fit
-                        
+
                     self.fit_items = np.append(self.fit_items,np.array([[x,x+float(w),y,y+float(h),z,z+float(d)]]),axis=0)
                     item.position = [set2Decimal(x),set2Decimal(y),set2Decimal(z)]
 
@@ -257,7 +257,7 @@ class Bin:
 
 
     def checkWidth(self,unfix_point):
-        ''' fix item position x ''' 
+        ''' fix item position x '''
         x_ = [[0,0],[float(self.width),float(self.width)]]
         for j in self.fit_items:
             # creat z set
@@ -276,7 +276,7 @@ class Bin:
             if x_[j+1][0] -x_[j][1] >= top_width:
                 return x_[j][1]
         return unfix_point[0]
-    
+
 
     def checkHeight(self,unfix_point):
         '''fix item position y '''
@@ -309,13 +309,13 @@ class Bin:
             for i in range(8):
                 a = Item(
                     partno='corner{}'.format(i),
-                    name='corner', 
+                    name='corner',
                     typeof='cube',
-                    WHD=(corner,corner,corner), 
-                    weight=0, 
-                    level=0, 
-                    loadbear=0, 
-                    updown=True, 
+                    WHD=(corner,corner,corner),
+                    weight=0,
+                    level=0,
+                    loadbear=0,
+                    updown=True,
                     color='#000000')
 
                 corner_list.append(a)
@@ -376,7 +376,7 @@ class Packer:
         bin.check_stable = check_stable
         bin.support_surface_ratio = support_surface_ratio
 
-        # first put item on (0,0,0) , if corner exist ,first add corner in box. 
+        # first put item on (0,0,0) , if corner exist ,first add corner in box.
         if bin.corner != 0 and not bin.items:
             corner_lst = bin.addCorner()
             for i in range(len(corner_lst)) :
@@ -400,7 +400,7 @@ class Packer:
                     pivot = [ib.position[0],ib.position[1] + h,ib.position[2]]
                 elif axis == Axis.DEPTH:
                     pivot = [ib.position[0],ib.position[1],ib.position[2] + d]
-                    
+
                 if bin.putItem(item, pivot, axis):
                     fitted = True
                     break
@@ -414,7 +414,7 @@ class Packer:
         ''' sorted by binding '''
         b,front,back = [],[],[]
         for i in range(len(self.binding)):
-            b.append([]) 
+            b.append([])
             for item in self.items:
                 if item.name in self.binding[i]:
                     b[i].append(item)
@@ -425,12 +425,12 @@ class Packer:
                         back.append(item)
 
         min_c = min([len(i) for i in b])
-        
+
         sort_bind =[]
         for i in range(min_c):
             for j in range(len(b)):
                 sort_bind.append(b[j][i])
-        
+
         for i in b:
             for j in i:
                 if j not in sort_bind:
@@ -460,9 +460,9 @@ class Packer:
 
 
     def gravityCenter(self,bin):
-        ''' 
+        '''
         Deviation Of Cargo gravity distribution
-        ''' 
+        '''
         w = int(bin.width)
         h = int(bin.height)
         d = int(bin.depth)
@@ -501,11 +501,11 @@ class Packer:
 
             # cal gravity distribution
             for j in range(len(area)):
-                if x_set.issubset(area[j][0]) and y_set.issubset(area[j][1]) : 
+                if x_set.issubset(area[j][0]) and y_set.issubset(area[j][1]) :
                     area[j][2] += int(i.weight)
                     break
                 # include x and !include y
-                elif x_set.issubset(area[j][0]) == True and y_set.issubset(area[j][1]) == False and len(y_set & area[j][1]) != 0 : 
+                elif x_set.issubset(area[j][0]) == True and y_set.issubset(area[j][1]) == False and len(y_set & area[j][1]) != 0 :
                     y = len(y_set & area[j][1]) / (y_ed - y_st) * int(i.weight)
                     area[j][2] += y
                     if j >= 2 :
@@ -514,7 +514,7 @@ class Packer:
                         area[j+2][2] += (int(i.weight) - y)
                     break
                 # include y and !include x
-                elif x_set.issubset(area[j][0]) == False and y_set.issubset(area[j][1]) == True and len(x_set & area[j][0]) != 0 : 
+                elif x_set.issubset(area[j][0]) == False and y_set.issubset(area[j][1]) == True and len(x_set & area[j][0]) != 0 :
                     x = len(x_set & area[j][0]) / (x_ed - x_st) * int(i.weight)
                     area[j][2] += x
                     if j >= 2 :
@@ -534,7 +534,7 @@ class Packer:
                     area[2][2] += x * y_2 / all * int(i.weight)
                     area[3][2] += x_2 * y_2 / all * int(i.weight)
                     break
-            
+
         r = [area[0][2],area[1][2],area[2][2],area[3][2]]
         result = []
         for i in r :
@@ -580,8 +580,8 @@ class Packer:
                 # repacking
                 for item in self.items:
                     self.pack2Bin(bin, item,fix_point,check_stable,support_surface_ratio)
-            
-            # Deviation Of Cargo Gravity Center 
+
+            # Deviation Of Cargo Gravity Center
             self.bins[idx].gravity = self.gravityCenter(bin)
 
             if distribute_items :
@@ -618,7 +618,7 @@ class Painter:
         """ Auxiliary function to plot a cube. code taken somewhere from the web.  """
         xx = [x, x, x+dx, x+dx, x]
         yy = [y, y+dy, y+dy, y, y]
-        
+
         kwargs = {'alpha': 1, 'color': color,'linewidth':linewidth }
         if mode == 1 :
             ax.plot3D(xx, yy, [z]*5, **kwargs)
@@ -640,7 +640,7 @@ class Painter:
             ax.add_patch(p4)
             ax.add_patch(p5)
             ax.add_patch(p6)
-            
+
             if text != "":
                 ax.text( (x+ dx/2), (y+ dy/2), (z+ dz/2), str(text),color='black', fontsize=fontsize, ha='center', va='center')
 
@@ -676,14 +676,19 @@ class Painter:
         """ side effective. Plot the Bin and the items it contains. """
         fig = plt.figure()
         axGlob = plt.axes(projection='3d')
-        
-        # plot bin 
+        axGlob.set_xlabel('X Axis')
+        axGlob.set_ylabel('Y Axis')
+        axGlob.set_zlabel('Z Axis')
+
+
+
+        # plot bin
         self._plotCube(axGlob,0, 0, 0, float(self.width), float(self.height), float(self.depth),color='black',mode=1,linewidth=2,text="")
 
         counter = 0
         # fit rotation type
         for item in self.items:
-            rt = item.rotation_type  
+            rt = item.rotation_type
             x,y,z = item.position
             [w,h,d] = item.getDimension()
             color = item.color
@@ -695,10 +700,10 @@ class Painter:
             elif item.typeof == 'cylinder':
                 # plot item of cylinder
                 self._plotCylinder(axGlob, float(x), float(y), float(z), float(w),float(h),float(d),color=color,mode=2,text=text,fontsize=fontsize,alpha=alpha)
-            
-            counter = counter + 1  
 
-        
+            counter = counter + 1
+
+
         plt.title(title)
         self.setAxesEqual(axGlob)
         return plt

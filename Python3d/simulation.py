@@ -245,10 +245,10 @@ def display():
         lifters[index].update(posX, posZ, angle, status, platformHeight,box_id)
         lifters[index].draw()
 
-        print("platformHeight ", platformHeight)
-        print("status ", status)
-        print("box_in_container ", box_in_container.id)
-        print("-"*100)
+        # print("platformHeight ", platformHeight)
+        # print("status ", status)
+        # print("box_in_container ", box_in_container.id)
+        # print("-"*100)
         if status == 4 and platformHeight == -150 and box_in_container.id != -1:
             Contenedores[0].update(box_in_container)
             box_in_container = Basura()
@@ -279,12 +279,12 @@ def display():
         print("rotation" , box.rotationType)
         if(anterior !=datos["queue_front"] and anterior != -1 and anterior == box.id):
             #Cuando la basura se elimina se le van a mandar las dimiensiones al lifter
-            print("A"*1000)
+            # print("A"*1000)
             for lifter in lifters:
                 if lifter.box_id == box.id:
                     box.Position = [0,0,0]
                     lifter.getTrash(box)
-                    print("A"*20)
+                    # print("A"*20)
                     # Contenedores[0].update(box)
                     box_in_container = box
                     break
@@ -295,6 +295,7 @@ def display():
 
     for contenedor in Contenedores:
         contenedor.draw()
+        print("Contenedor position: ", contenedor.Position)
 
 
     # Se dibuja el incinerador
@@ -308,6 +309,29 @@ def display():
     glVertex3d(half_size, 0.5, half_size)
     glVertex3d(half_size, 0.5, -half_size)
     glEnd()
+
+    #Se dibuja el eje X en rojo
+    glColor3f(1.0, 0.0, 0.0)
+    glBegin(GL_LINES)
+    glVertex3d(0, 0, 0)
+    glVertex3d(100, 0, 0)
+    glEnd()
+
+    #Se dibuja el eje Y en negro
+    glColor3f(0.0, 0.0, 0.0)
+    glBegin(GL_LINES)
+    glVertex3d(0, 0, 0)
+    glVertex3d(0, 100, 0)
+    glEnd()
+
+    #Se dibuja el eje Z en azul
+    glColor3f(0.0, 0.0, 1.0)
+    glBegin(GL_LINES)
+    glVertex3d(0, 0, 0)
+    glVertex3d(0, 0, 100)
+    glEnd()
+
+
 
     #Se dibujan basuras
     # for obj in basuras:
