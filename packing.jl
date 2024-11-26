@@ -191,7 +191,7 @@ function initialize_model()
     #H = alto
     #D = largo
 
-    add_agent!(Contenedor, model, position=[-30, 50], dimension=[30, 20, 22])
+    add_agent!(Contenedor, model, position=[-30, 39], dimension=[30, 20, 22])
 
     #TODO: dar opciones de cajas en vez de random
     #Se crean aleatoramiente las dimiensiones de las cajas
@@ -236,7 +236,7 @@ function initialize_model()
     # python_executable
 
     #se ejecuta el script de python
-    run(`python3 myexample.py`)
+    run(`python3 main.py`)
 
 
 
