@@ -410,6 +410,26 @@ def lookAt():
     newZ = -EYE_X * math.sin(rad) + EYE_Z * math.cos(rad)
     gluLookAt(newX,EYE_Y,newZ,CENTER_X,CENTER_Y,CENTER_Z,UP_X,UP_Y,UP_Z)
 
+def update_camera(view_id):
+    global EYE_X, EYE_Y, EYE_Z, CENTER_X, CENTER_Y, CENTER_Z
+    if view_id == 1:  # Vista 1
+        EYE_X, EYE_Y, EYE_Z = 200.0, 150.0, 200.0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
+    elif view_id == 2:  # Vista 2
+        EYE_X, EYE_Y, EYE_Z = 200.0, 100.0, 0.0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
+    elif view_id == 3:  # Vista 3
+        EYE_X, EYE_Y, EYE_Z = -80.0, 150.0, 80.0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
+    elif view_id == 4:  # Vista 4
+        EYE_X, EYE_Y, EYE_Z = 0.0, 20.0, 150.0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
+    elif view_id == 5:  # Vista 5
+        EYE_X, EYE_Y, EYE_Z = 75.0, 20.0, 0.0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
+
+    lookAt()
+
 done = False
 Init()
 while not done:
@@ -431,8 +451,21 @@ while not done:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 done = True
+            if event.key == pygame.K_1:
+                update_camera(1)
+            if event.key == pygame.K_2:
+                update_camera(2)
+            if event.key == pygame.K_3:
+                update_camera(3)
+            if event.key == pygame.K_4:
+                update_camera(4)
+            if event.key == pygame.K_5:
+                update_camera(5)
+
         if event.type == pygame.QUIT:
             done = True
+
+        
     display()
 
     display()

@@ -2,10 +2,10 @@ include("pacman.jl")
 using Genie, Genie.Renderer.Json, Genie.Requests, HTTP
 using UUIDs
 
-using Logging
+#using Logging
 
 # Set the global logging level to Warn
-global_logger(ConsoleLogger(stderr, Logging.Warn))
+#global_logger(ConsoleLogger(stderr, Logging.Warn))
 
 
 
@@ -31,7 +31,7 @@ route("/simulations", method=POST) do
 end
 
 route("/simulations/:id") do
-    # println(payload(:id))
+    #println(payload(:id))
     model = instances[payload(:id)]
     run!(model, 1)
     agents = []

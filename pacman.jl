@@ -27,7 +27,7 @@ queue_cajas_checador = Queue{Int}()
     #movientos de robot
     movimientos::Int = 0
 
-    objective_position::Vector{Int} = [0, 0]
+    objective_position::Vector{Int} = [50, 1]
 
     #la caja que el robot esta manipulando
     box_id::Int = -1
@@ -119,10 +119,10 @@ function agent_step!(agent::Robot, model)
 
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
             agent.state = 2
-            agent.objective_position = [1, 1]
+            agent.objective_position = [50, 1]
             remove_agent!(model[agent.box_id], model)
             # dequeue!(queue_cajas)
-            plan_route!(agent, (1, 1), pathfinder)
+            plan_route!(agent, (agent.objective_position[1],agent.objective_position[2]), pathfinder)
             #la box id cambia a -1
             # agent.box_id = -1
         end
@@ -159,22 +159,23 @@ end
 
 function initialize_model()
     # Se crea una grid de 50x50
-    grid = trues(50, 50)
-    space = GridSpace((50, 50); periodic=false, metric=:manhattan)
+    grid_n = 100
+    grid = trues(grid_n, grid_n)
+    space = GridSpace((grid_n,grid_n); periodic=false, metric=:manhattan)
     model = StandardABM(Union{Robot,Box,Contenedor}, space; agent_step!)
     #Se agregan los robots
     #Supongamos que solo hay uno
-    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(50, 1), model)
-    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(49, 1), model)
+    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(100, 1), model)
+    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(99, 1), model)
 
     # #Se agregan las posiciones de las cajas
-    x = rand(1:50)
-    y = rand(1:50)
+    x = rand(1:grid_n)
+    y = rand(1:grid_n)
 
     for i in 1:20
         while length((ids_in_position((x, y), model))) > 0
-            x = rand(1:50)
-            y = rand(1:50)
+            x = rand(1:grid_n)
+            y = rand(1:grid_n)
         end
         add_agent!(Box, pos=(x, y), model)
         println("Box pos", x, " ", y)
@@ -189,7 +190,7 @@ function initialize_model()
     #H = alto
     #D = largo
 
-    add_agent!(Contenedor, model, position=[-22, -30], dimension=[22, 20, 30])
+    add_agent!(Contenedor, model, position=[-30, -11], dimension=[30, 20, 22])
 
     #TODO: dar opciones de cajas en vez de random
     #Se crean aleatoramiente las dimiensiones de las cajas
@@ -230,10 +231,11 @@ function initialize_model()
     #Se ejecuta el script de python que nos dira las posiciones de las cajas
 
     #se declara el ejecutable de python
-    python_executable = "/home/anhuar/anaconda3/envs/my_anaconda_env/bin/python"
+    # python_executable = "/Users/ser/Uni/Multiagentes/Proyecto_Packaging/Python3d/simulation.py"
+    # python_executable
 
     #se ejecuta el script de python
-    run(`$python_executable myexample.py`)
+    run(`python3 myexample.py`)
 
 
 
