@@ -42,8 +42,8 @@ GLOBAL_CENTER_X=0
 GLOBAL_CENTER_Y=10
 GLOBAL_CENTER_Z=0
 
-EYE_X=300.0
-EYE_Y=150.0
+EYE_X=-200.0
+EYE_Y=120.0
 EYE_Z= 0.0
 CENTER_X=0
 CENTER_Y=30
@@ -93,16 +93,16 @@ radius = 300
 
 # Arreglo para el manejo de texturas
 textures_robot = []
-filenames_robot = ["robot/img1.bmp","robot/wheel.jpg", "robot/walle1.jpeg",
-             "robot/basura.bmp", "warehouse/corru_iron.png",
-             "warehouse/rusty.jpg"]
+filenames_robot = ["robot/box.jpg", "robot/wheel1.jpeg", "robot/walle1.jpeg",
+             "robot/box.jpg", "warehouse/corru_iron.png",
+             "warehouse/rusty.jpg", "robot/walle.jpg"]
 
 textures_backgrounds = []
 filenames_backgrounds = ["background/front.png", "background/back.png", "background/left.png", 
                          "background/right.png",  "background/sky.png", "background/floor.png"]
 
 textures_warehouse = []
-filenames_warehouse = ["warehouse/corru_iron.png", "warehouse/rusty.jpg"]
+filenames_warehouse = ["warehouse/corru_iron.png", "warehouse/rusty.jpg", "warehouse/concrete.png"]
 
 
 def Axis():
@@ -197,7 +197,7 @@ for i in range(len(datos["agents"])):
     if datos["agents"][i]["type"] == "Box":
         box = datos["agents"][i]
         basuras.append(Basura(
-            DimBoard,1,textures_robot,3,
+            DimBoard,1,textures_robot,0,
             box["id"],
             escala * box["pos"][0],
             escala * box["pos"][1],
@@ -577,32 +577,11 @@ def display():
     glVertex3d(half_size, 0.5, -half_size)
     glEnd()
 
-    #Se dibuja el eje X en rojo
-    glColor3f(1.0, 0.0, 0.0)
-    glBegin(GL_LINES)
-    glVertex3d(0, 0, 0)
-    glVertex3d(100, 0, 0)
-    glEnd()
-
-    #Se dibuja el eje Y en negro
-    glColor3f(0.0, 0.0, 0.0)
-    glBegin(GL_LINES)
-    glVertex3d(0, 0, 0)
-    glVertex3d(0, 100, 0)
-    glEnd()
-
-    #Se dibuja el eje Z en azul
-    glColor3f(0.0, 0.0, 1.0)
-    glBegin(GL_LINES)
-    glVertex3d(0, 0, 0)
-    glVertex3d(0, 0, 100)
-    glEnd()
-
     #Se dibuja el plano gris
     # planoText()
     backgrountText()
     # tiled_texture(-DimBoard, DimBoard, -DimBoard, DimBoard, textures_backgrounds[0], 100, 100)
-    floor_tiled_texture_with_loop(-wallWidth, wallWidth, -wallWidth, wallWidth, textures_warehouse[1], 80)
+    floor_tiled_texture_with_loop(-wallWidth, wallWidth, -wallWidth, wallWidth, textures_warehouse[2], 80)
 
     generate_warehouse(textures_warehouse)
     # generate_warehouse_with_tiling(dim_length, dim_width, dim_height, textures_warehouse, tile_size)
@@ -614,24 +593,26 @@ def lookAt():
     rad = theta * math.pi / 180
     newX = EYE_X * math.cos(rad) + EYE_Z * math.sin(rad)
     newZ = -EYE_X * math.sin(rad) + EYE_Z * math.cos(rad)
-    gluLookAt(newX,EYE_Y,newZ,CENTER_X,CENTER_Y,CENTER_Z,UP_X,UP_Y,UP_Z)
+    gluLookAt(newX, EYE_Y, newZ, CENTER_X, CENTER_Y, CENTER_Z, UP_X, UP_Y, UP_Z)
+
+
 
 def update_camera(view_id):
     global EYE_X, EYE_Y, EYE_Z, CENTER_X, CENTER_Y, CENTER_Z
     if view_id == 1:  # Vista 1
-        EYE_X, EYE_Y, EYE_Z = 200.0, 150.0, 200.0
+        EYE_X, EYE_Y, EYE_Z = -200.0, 120.0, 0.0
         CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
     elif view_id == 2:  # Vista 2
         EYE_X, EYE_Y, EYE_Z = -80.0, 150.0, 80.0
         CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
     elif view_id == 3:  # Vista 3
-        EYE_X, EYE_Y, EYE_Z = 150.0, 80.0, 0.0
+        EYE_X, EYE_Y, EYE_Z = 300.0, 70.0, 0.0
         CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
     elif view_id == 4:  # Vista 4
         EYE_X, EYE_Y, EYE_Z = 0.0, 20.0, 110.0
         CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
     elif view_id == 5:  # Vista 5
-        EYE_X, EYE_Y, EYE_Z = -75.0, 20.0, 0.0
+        EYE_X, EYE_Y, EYE_Z = -70.0, 20.0, 0.0
         CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
 
     lookAt()
@@ -674,7 +655,6 @@ while not done:
         
     display()
 
-    display()
     pygame.display.flip()
     pygame.time.wait(10)
 pygame.quit()

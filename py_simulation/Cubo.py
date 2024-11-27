@@ -110,9 +110,9 @@ class Cubo:
         # Se dibuja el cubo
         # ...
 
-        #glEnable(GL_TEXTURE_2D)
+        glEnable(GL_TEXTURE_2D)
         #front face
-        #glBindTexture(GL_TEXTURE_2D, self.textures[self.txtIndex])
+        glBindTexture(GL_TEXTURE_2D, self.textures[self.txtIndex])
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0)
         glVertex3d(1, 1, 1)
@@ -164,13 +164,13 @@ class Cubo:
         glVertex3d(1, 1, -1)
 
         glEnd()
-        #glDisable(GL_TEXTURE_2D)
-        #glEnableClientState(GL_VERTEX_ARRAY)
-        #glEnableClientState(GL_COLOR_ARRAY)
-        #glVertexPointer(3, GL_FLOAT, 0, self.vertexCoords)
-        #glColorPointer(3, GL_FLOAT, 0, self.vertexColors)
-        #glDrawElements(GL_QUADS, 24, GL_UNSIGNED_INT, self.elementArray)
-        #glDisableClientState(GL_VERTEX_ARRAY)
-        #glDisableClientState(GL_COLOR_ARRAY)
+        # glDisable(GL_TEXTURE_2D)
+        # glEnableClientState(GL_VERTEX_ARRAY)
+        # glEnableClientState(GL_COLOR_ARRAY)
+        # glVertexPointer(3, GL_FLOAT, 0, self.vertexCoords)
+        # glColorPointer(3, GL_FLOAT, 0, self.vertexColors)
+        # glDrawElements(GL_QUADS, 24, GL_UNSIGNED_INT, self.elementArray)
+        # glDisableClientState(GL_VERTEX_ARRAY)
+        # glDisableClientState(GL_COLOR_ARRAY)
 
         glPopMatrix()
