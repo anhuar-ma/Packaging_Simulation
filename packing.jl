@@ -67,9 +67,107 @@ end
 
 
 # Move the agent along the route and update its rotation
+# function move_along_route_with_angle!(agent::Robot, model, pathfinder)
+#     past_pos = agent.pos
+#     move_along_route!(agent, model, pathfinder)
+#     dx = agent.pos[1] - past_pos[1]
+#     dy = agent.pos[2] - past_pos[2]
+#     if dx == -1
+#         agent.angle = 0   # Right
+#     elseif dx == 1
+#         agent.angle = 180 # Left
+#     elseif dy == 1
+#         agent.angle = 90  # Up
+#     elseif dy == -1
+#         agent.angle = 270 # Down
+#     end
+# end
+
+
+function find_safe_position(agent, next_pos_robot, current_robot_pos, model)
+    # Calculate the direction of the robot's movement
+    direction = (next_pos_robot[1] - current_robot_pos[1], next_pos_robot[2] - current_robot_pos[2])
+
+    # Determine a list of potential safe positions based on the direction
+    potential_safe_positions = []
+    if direction == (1, 0)  # Moving right
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] - 1))  # Move down
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] + 1))  # Move up
+        push!(potential_safe_positions, (agent.pos[1] - 1, agent.pos[2]))  # Move left
+        push!(potential_safe_positions, (agent.pos[1] + 1, agent.pos[2]))  # Move right
+    elseif direction == (-1, 0)  # Moving left
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] + 1))  # Move up
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] - 1))  # Move down
+        push!(potential_safe_positions, (agent.pos[1] - 1, agent.pos[2]))  # Move left
+        push!(potential_safe_positions, (agent.pos[1] + 1, agent.pos[2]))  # Move right
+    elseif direction == (0, 1)  # Moving up
+        push!(potential_safe_positions, (agent.pos[1] - 1, agent.pos[2]))  # Move left
+        push!(potential_safe_positions, (agent.pos[1] + 1, agent.pos[2]))  # Move right
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] - 1))  # Move down
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] + 1))  # Move up
+    elseif direction == (0, -1)  # Moving down
+        push!(potential_safe_positions, (agent.pos[1] + 1, agent.pos[2]))  # Move right
+        push!(potential_safe_positions, (agent.pos[1] - 1, agent.pos[2]))  # Move left
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] + 1))  # Move up
+        push!(potential_safe_positions, (agent.pos[1], agent.pos[2] - 1))  # Move down
+    else
+        push!(potential_safe_positions, agent.pos)  # No movement, stay in the current position
+    end
+
+    # Check if the potential safe positions are within the limits of the model
+    for safe_pos in potential_safe_positions
+        if safe_pos[1] >= 1 && safe_pos[1] <= n_grid_model_size[1] && safe_pos[2] >= 1 && safe_pos[2] <= n_grid_model_size[2]
+            return safe_pos
+        end
+    end
+
+    return agent.pos  # If no valid safe position is found, stay in the current position
+end
+
+
+
+# Move the agent along the route and update its rotation
 function move_along_route_with_angle!(agent::Robot, model, pathfinder)
+
+
+    move_along_route_bool = true
     past_pos = agent.pos
-    move_along_route!(agent, model, pathfinder)
+
+    if (!isempty(pathfinder.agent_paths[agent.id]))
+        #obtenemos la siguient posicion en la ruta
+        next_pos = first(pathfinder.agent_paths[agent.id])
+
+        for robot in agents_in_position(next_pos, model)
+            #si hay un robot en la siguiente posicion y no es el mismo robot y el id del robot es mayor
+            if robot.type == "Robot" && robot.id != agent.id && agent.id > robot.id
+                #Tengo que moverme a un lugar en donde no este en la ruta del otro robot
+                next_pos_robot = (0, 0)
+                if (!isempty(pathfinder.agent_paths[robot.id]))
+                    next_pos_robot = first(pathfinder.agent_paths[robot.id])
+                    current_robot_pos = robot.pos
+
+                    safe_pos = find_safe_position(agent, next_pos_robot, current_robot_pos, model)
+
+                    if (safe_pos != agent.pos)
+                        # Move the agent to the safe position
+                        move_agent!(agent, safe_pos, model)
+                        println("--------HOLAAAAAA-----------------------------------")
+                        move_along_route_bool = false
+                    end
+                end
+
+
+                println(agent.id)
+                break
+            end
+        end
+
+    end
+
+    if move_along_route_bool || (!isempty(pathfinder.agent_paths[agent.id]))
+        move_along_route!(agent, model, pathfinder)
+    end
+
     dx = agent.pos[1] - past_pos[1]
     dy = agent.pos[2] - past_pos[2]
     if dx == -1
@@ -81,7 +179,10 @@ function move_along_route_with_angle!(agent::Robot, model, pathfinder)
     elseif dy == -1
         agent.angle = 270 # Down
     end
+
+
 end
+
 
 
 function agent_step!(agent::Robot, model)
@@ -119,7 +220,7 @@ function agent_step!(agent::Robot, model)
 
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
             agent.state = 2
-            agent.objective_position = [1, 50] #Aquí deja las cajas
+            agent.objective_position = [agent.id, 50] #Aquí deja las cajas
             remove_agent!(model[agent.box_id], model)
             # dequeue!(queue_cajas)
             plan_route!(agent, (agent.objective_position[1],agent.objective_position[2]), pathfinder)
@@ -142,10 +243,12 @@ function agent_step!(agent::Robot, model)
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2] && agent.box_id == first(queue_cajas_checador)
             agent.state = 4
             dequeue!(queue_cajas_checador)
+            agent.angle = 0
         end
         # println("algoooooooooooo")
         #estado 4 Se va a dejar caer la caja,bajando la plataforma
     else
+        agent.angle = 0
         if agent.platformHeight <= -150
             agent.state = 0
         else
@@ -173,6 +276,9 @@ function initialize_model()
     x = rand(1:grid_n)
     y = rand(1:grid_n)
 
+    lista_caja = [[1, 1, 1], [5, 5, 5], [7, 7, 7]]
+
+
     for i in 1:20
         while length((ids_in_position((x, y), model))) > 0
             x = rand(1:grid_n)
@@ -197,8 +303,12 @@ function initialize_model()
     #Se crean aleatoramiente las dimiensiones de las cajas
     for box in allagents(model)
         if box.type == "Box"
-            # box.dimension = [1, 3, 9]
-            box.dimension = [rand(3:7), rand(3:7), rand(3:7)]
+            #dimensiones aletorias
+            # box.dimension = [rand(3:7), rand(3:7), rand(3:7)]
+
+            #dimensiones del socio
+            box.dimension = lista_caja[rand(1:3)]
+
             #para indicar que el robot no pueda pasar por la caja
             grid[box.pos[1], box.pos[2]] = false
         end
@@ -206,8 +316,8 @@ function initialize_model()
 
     # add_agent!(Box, pos=(1, 1), dimension=[20, 30, 10], model)
 
-    # pathfinder = AStar(space; walkmap=grid, diagonal_movement=false)
-    pathfinder = AStar(space; diagonal_movement=false)
+    pathfinder = AStar(space; walkmap=grid, diagonal_movement=false)
+    # pathfinder = AStar(space; diagonal_movement=false)
 
     open("box_dimensions.txt", "w") do file
         # Iterate through the box and send the dimensions to the file
