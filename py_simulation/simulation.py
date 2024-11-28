@@ -46,7 +46,7 @@ EYE_X=-200.0
 EYE_Y=120.0
 EYE_Z= 0.0
 CENTER_X=0
-CENTER_Y=30
+CENTER_Y=20
 CENTER_Z=0
 UP_X=0
 UP_Y=1
@@ -94,8 +94,8 @@ radius = 300
 # Arreglo para el manejo de texturas
 textures_robot = []
 filenames_robot = ["robot/box.jpg", "robot/wheel1.jpeg", "robot/walle1.jpeg",
-             "robot/box.jpg", "warehouse/corru_iron.png",
-             "warehouse/rusty.jpg", "robot/walle.jpg"]
+             "robot/box.jpg", "warehouse/corru_iron.png", "warehouse/rusty.jpg", 
+             "robot/walle.jpg", "robot/scifi_robot.jpg"]
 
 textures_backgrounds = []
 filenames_backgrounds = ["background/front.png", "background/back.png", "background/left.png", 
@@ -283,7 +283,7 @@ def floor_tiled_texture_with_loop(x_min, x_max, y_min, y_max, texture_id, tile_s
 
 def backgrountText():
     glPushMatrix()
-    glTranslate(0, -100, 0)
+    glTranslate(0, -75, 0)
     glEnable(GL_TEXTURE_2D)
     
     # Adjusted front face
@@ -601,18 +601,18 @@ def update_camera(view_id):
     global EYE_X, EYE_Y, EYE_Z, CENTER_X, CENTER_Y, CENTER_Z
     if view_id == 1:  # Vista 1
         EYE_X, EYE_Y, EYE_Z = -200.0, 120.0, 0.0
-        CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
     elif view_id == 2:  # Vista 2
         EYE_X, EYE_Y, EYE_Z = -80.0, 150.0, 80.0
-        CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
     elif view_id == 3:  # Vista 3
-        EYE_X, EYE_Y, EYE_Z = 300.0, 70.0, 0.0
-        CENTER_X, CENTER_Y, CENTER_Z = 0, 0, 0
+        EYE_X, EYE_Y, EYE_Z = 300.0, 20.0, 0.0
+        CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
     elif view_id == 4:  # Vista 4
-        EYE_X, EYE_Y, EYE_Z = 0.0, 20.0, 110.0
+        EYE_X, EYE_Y, EYE_Z = 0.0, 20.0, -110.0
         CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
     elif view_id == 5:  # Vista 5
-        EYE_X, EYE_Y, EYE_Z = -70.0, 20.0, 0.0
+        EYE_X, EYE_Y, EYE_Z = -76.0, 20.0, 0.0
         CENTER_X, CENTER_Y, CENTER_Z = 0, 20, 0
 
     lookAt()

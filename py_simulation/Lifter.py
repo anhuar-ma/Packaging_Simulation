@@ -157,7 +157,7 @@ class Lifter:
         glTranslatef(0, 1.5, 0)
         glScaled(0.8, 0.8, 0.8)
         glColor3f(1.0, 1.0, 1.0)
-        head = Cubo(self.textures, 6)
+        head = Cubo(self.textures, 2)
         head.draw()
         glPopMatrix()
         glDisable(GL_TEXTURE_2D)
