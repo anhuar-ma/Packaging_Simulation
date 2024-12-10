@@ -14,7 +14,7 @@ The simulation begins by generating 20 randomly placed boxes within the workspac
 Each box has randomly assigned dimensions ranging between 1 and 7 units for width, height, and depth.
 
 ### 3D Bin Packing:
-Given the dimensions of the boxes and the container, the program calculates the optimal way to arrange the boxes using 3D bin packing algorithms.
+Given the dimensions of the boxes and the container, the program calculates the optimal way to arrange the boxes using 3D bin packing python library.
 This process determines the ideal position and sequence for storing the boxes in the container.
 
 ### Robot Navigation:
