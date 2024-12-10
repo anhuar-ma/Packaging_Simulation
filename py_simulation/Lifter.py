@@ -84,11 +84,6 @@ class Lifter:
         self.platformHeight = platformHeight * 0.01
         self.box_id = box_id
 
-        # if self.platformHeight == -1.5:
-        #         print("NO"*100)
-        #         self.basura = None
-
-
     def draw(self):
         displacement = 2
         glPushMatrix()
@@ -231,7 +226,6 @@ class Lifter:
 
         # glBegin(GL_QUADS)
         if self.basura != None:
-            # print("O"*10)
             self.basura.Position = [0, 0, 0]
             self.basura.draw()
 

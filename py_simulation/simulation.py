@@ -23,11 +23,6 @@ r = requests.post(URL_BASE+ "/simulations", allow_redirects=False)
 datos = r.json()
 # datos se vuelve una lista con los datos de nuestros robots
 LOCATION = datos["Location"]
-print("--------------------------")
-print(LOCATION)
-print("--------------------------")
-
-
 
 screen_width = 800
 screen_height = 600
@@ -94,11 +89,11 @@ radius = 300
 # Arreglo para el manejo de texturas
 textures_robot = []
 filenames_robot = ["robot/box.jpg", "robot/wheel1.jpeg", "robot/walle1.jpeg",
-             "robot/box.jpg", "warehouse/corru_iron.png", "warehouse/rusty.jpg", 
+             "robot/box.jpg", "warehouse/corru_iron.png", "warehouse/rusty.jpg",
              "robot/walle.jpg", "robot/scifi_robot.jpg"]
 
 textures_backgrounds = []
-filenames_backgrounds = ["background/front.png", "background/back.png", "background/left.png", 
+filenames_backgrounds = ["background/front.png", "background/back.png", "background/left.png",
                          "background/right.png",  "background/sky.png", "background/floor.png"]
 
 textures_warehouse = []
@@ -179,10 +174,10 @@ def Init():
 
     for i in filenames_backgrounds:
         Texturas(i, textures_backgrounds)
-    
+
     for i in filenames_warehouse:
         Texturas(i, textures_warehouse)
-    
+
 
     glPushMatrix()
     glTranslatef(100.0, 0.0, 0.0)
@@ -285,7 +280,7 @@ def backgrountText():
     glPushMatrix()
     glTranslate(0, -75, 0)
     glEnable(GL_TEXTURE_2D)
-    
+
     # Adjusted front face
     glBindTexture(GL_TEXTURE_2D, textures_backgrounds[1])
     glColor(1.0, 1.0, 1.0)
@@ -293,7 +288,7 @@ def backgrountText():
 
     dim = wallWidth / 2
     dimHeight = 400
-    
+
     glBegin(GL_QUADS)
     glTexCoord2f(0.0, 1.0)  # Flip vertically
     glVertex3d(-dim, 0, dim)
@@ -306,7 +301,7 @@ def backgrountText():
     glEnd()
 
 
-    
+
     # Adjusted back face
     glBindTexture(GL_TEXTURE_2D, textures_backgrounds[2])
     glBegin(GL_QUADS)
@@ -371,7 +366,7 @@ def backgrountText():
     # glTexCoord2f(0.0, 0.0)
     # glVertex3d(-dim, 0, dim)
     # glEnd()
-    
+
     glDisable(GL_TEXTURE_2D)
     glPopMatrix()
 
@@ -433,7 +428,7 @@ def generate_warehouse(textures):
     glVertex3f(0, dim_height, -dim_width)  # Top-left
     glEnd()
 
-    
+
     # # Left wall (negative X direction) DOOR LEFT
     glBindTexture(GL_TEXTURE_2D, textures[1])
     glBegin(GL_QUADS)
@@ -511,8 +506,6 @@ def display():
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    print(datos)
-    print("-------------------------")
     # Se dibujan los robots
     index = 0
     for i in range(cantidad_robots):
@@ -525,10 +518,6 @@ def display():
         lifters[index].update(posX, posZ, angle, status, platformHeight,box_id)
         lifters[index].draw()
 
-        print("platformHeight ", platformHeight)
-        print("status ", status)
-        print("box_in_container ", box_in_container.id)
-        print("-"*100)
 
         # Se agrega al lifter la caja
         if status == 2 and platformHeight == -150 and box_id != -1:
@@ -551,20 +540,14 @@ def display():
 
     for box in basuras:
         box.draw()
-        print("Box id: ", box.id)
-        print("Box position: ", box.Position)
-        print("Anterior: ", anterior)
-        print("basuras size: " , len(basuras))
-        print("rotation" , box.rotationType)
 
     for contenedor in Contenedores:
         contenedor.draw()
-        print("Contenedor position: ", contenedor.Position)
 
     # Se dibuja el incinerador
     glColor3f(1.0, 0.5, 0.0)  # Color: Naranja
     square_size = 20.0  # Tamaño
-    
+
     glPopMatrix()
 
     half_size = square_size / 2.0
@@ -652,7 +635,7 @@ while not done:
         if event.type == pygame.QUIT:
             done = True
 
-        
+
     display()
 
     pygame.display.flip()

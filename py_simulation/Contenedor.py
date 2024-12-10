@@ -71,9 +71,6 @@ class Contenedor:
         glColor4f(1.0, 0.0, 0.0, 0.5)  # Set color with alpha for transparency
 
 
-        print("Contenedor")
-        print(self.W_H_D)
-        print(self.Position)
         glBegin(GL_LINE_LOOP)
 
         W = self.W_H_D[0]

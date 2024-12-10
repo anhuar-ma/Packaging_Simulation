@@ -16,7 +16,7 @@ This example can be used to compare the fix_point function with and without the 
 # init packing function
 packer = Packer()
 
-#Read the file and add ems to the packer
+#Read the file and add send it to the packer
 file = open('box_dimensions.txt', 'r')
 for line in file:
     parts = line.split(' [')
@@ -75,6 +75,68 @@ packer.pack(
     support_surface_ratio=0.75,
     number_of_decimals=0
 )
+
+
+# print result
+for box in packer.bins:
+
+    volume = box.width * box.height * box.depth
+    print(":::::::::::", box.string())
+
+    print("FITTED ITEMS:")
+    volume_t = 0
+    volume_f = 0
+    unfitted_name = ''
+
+    # '''
+    for item in box.items:
+        print("partno : ",item.partno)
+        print("type : ",item.name)
+        print("color : ",item.color)
+        #position is (x,y,z)
+        print("position : ",item.position)
+        print("rotation type : ",item.rotation_type)
+        print("W*H*D : ",str(item.width) +'*'+ str(item.height) +'*'+ str(item.depth))
+        print("volume : ",float(item.width) * float(item.height) * float(item.depth))
+        print("weight : ",float(item.weight))
+        volume_t += float(item.width) * float(item.height) * float(item.depth)
+        print("***************************************************")
+    print("***************************************************")
+    # '''
+    print("UNFITTED ITEMS:")
+    for item in box.unfitted_items:
+        print("partno : ",item.partno)
+        print("type : ",item.name)
+        print("color : ",item.color)
+        print("W*H*D : ",str(item.width) +'*'+ str(item.height) +'*'+ str(item.depth))
+        print("volume : ",float(item.width) * float(item.height) * float(item.depth))
+        print("weight : ",float(item.weight))
+        volume_f += float(item.width) * float(item.height) * float(item.depth)
+        unfitted_name += '{},'.format(item.partno)
+        print("***************************************************")
+    print("***************************************************")
+    print('space utilization : {}%'.format(round(volume_t / float(volume) * 100 ,2)))
+    print('residual volumn : ', float(volume) - volume_t )
+    print('unpack item : ',unfitted_name)
+    print('unpack item volumn : ',volume_f)
+    print("gravity distribution : ",box.gravity)
+    # '''
+    stop = time.time()
+    print('used time : ',stop - start)
+
+    # draw results
+    painter = Painter(box)
+    fig = painter.plotBoxAndItems(
+        title=box.partno,
+        alpha=0.2,
+        write_num=True,
+        fontsize=10
+    )
+
+
+
+
+fig.show()
 
 #write the ordered positions in the txt
 with open('box_positions.txt', 'w') as file:

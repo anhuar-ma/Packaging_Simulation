@@ -47,19 +47,12 @@ class Basura:
 
         self.W_H_D = [W,D,H]
 
-        print("rotationType",self.rotationType)
         if self.rotationType == 0:
             self.ordered_W_H_D = [self.W_H_D[0],self.W_H_D[1],self.W_H_D[2]]
         elif self.rotationType == 1:
             self.ordered_W_H_D = [self.W_H_D[1],self.W_H_D[0],self.W_H_D[2]]
         elif self.rotationType == 2:
-            print("ordered antes",self.ordered_W_H_D)
             self.ordered_W_H_D = [self.W_H_D[1],self.W_H_D[2],self.W_H_D[0]]
-            print("---")
-            print("WHD",self.W_H_D)
-            print("ordered",self.ordered_W_H_D)
-            # times = int(input("Cuantas veces quieres que se repita"))
-            # print("OLa"*times)
         elif self.rotationType == 3:
             self.ordered_W_H_D = [self.W_H_D[2],self.W_H_D[1],self.W_H_D[0]]
         elif self.rotationType == 4:
@@ -194,13 +187,6 @@ class Basura:
         self.Position = [0,0,0]
         self.W_H_D = self.ordered_W_H_D
 
-        print("basura")
-        # print("First WHD",self.firstW_H_D)
-        print("Current WHD",self.W_H_D)
-        print("Ordered WHD",self.ordered_W_H_D)
-        print("Rotation",self.rotationType)
-        print(self.Position)
-        print(self.orderedPosition)
         self.draw()
         glPopMatrix()
 

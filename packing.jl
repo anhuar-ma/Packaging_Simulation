@@ -6,6 +6,7 @@ using PyCall
 using DataStructures
 queue_cajas = Queue{Int}()
 queue_cajas_checador = Queue{Int}()
+n_grid_model_size = [100, 100]
 
 @agent struct Robot(GridAgent{2})
     type::String = "Robot"
@@ -66,22 +67,6 @@ function agent_step!(agent::Contenedor, model)
 end
 
 
-# Move the agent along the route and update its rotation
-# function move_along_route_with_angle!(agent::Robot, model, pathfinder)
-#     past_pos = agent.pos
-#     move_along_route!(agent, model, pathfinder)
-#     dx = agent.pos[1] - past_pos[1]
-#     dy = agent.pos[2] - past_pos[2]
-#     if dx == -1
-#         agent.angle = 0   # Right
-#     elseif dx == 1
-#         agent.angle = 180 # Left
-#     elseif dy == 1
-#         agent.angle = 90  # Up
-#     elseif dy == -1
-#         agent.angle = 270 # Down
-#     end
-# end
 
 
 function find_safe_position(agent, next_pos_robot, current_robot_pos, model)
@@ -206,7 +191,6 @@ function agent_step!(agent::Robot, model)
             println(box.id)
             println(box.pos)
             plan_route!(agent, box.pos, pathfinder)
-            # print("algoooooooooooo2222222")
         end
     elseif agent.state == 1
         #si ya encontró la caja, se mueve a ella
@@ -220,10 +204,10 @@ function agent_step!(agent::Robot, model)
 
         if agent.pos[1] == agent.objective_position[1] && agent.pos[2] == agent.objective_position[2]
             agent.state = 2
-            agent.objective_position = [agent.id, 50] #Aquí deja las cajas
+            agent.objective_position = [1, 60 - ((agent.id - 1) * 5)] #Aquí deja las cajas
             remove_agent!(model[agent.box_id], model)
             # dequeue!(queue_cajas)
-            plan_route!(agent, (agent.objective_position[1],agent.objective_position[2]), pathfinder)
+            plan_route!(agent, (agent.objective_position[1], agent.objective_position[2]), pathfinder)
             #la box id cambia a -1
             # agent.box_id = -1
         end
@@ -262,27 +246,30 @@ end
 
 function initialize_model()
     # Se crea una grid de 50x50
-    
+
     grid_n = 100 #Espacio del Grid
     grid = trues(grid_n, grid_n)
-    space = GridSpace((grid_n,grid_n); periodic=false, metric=:manhattan)
+    space = GridSpace((grid_n, grid_n); periodic=false, metric=:manhattan)
     model = StandardABM(Union{Robot,Box,Contenedor}, space; agent_step!)
     #Se agregan los robots
     #Supongamos que solo hay uno
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(100, 1), model)
     add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(99, 1), model)
+    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(98, 1), model)
+    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(97, 1), model)
+    add_agent!(Robot, limit=(1, 10), direction=[1, -1], pos=(96, 1), model)
 
     # #Se agregan las posiciones de las cajas
-    x = rand(1:grid_n)
-    y = rand(1:grid_n)
+    x = rand(2:grid_n-1)
+    y = rand(2:grid_n-1)
 
     lista_caja = [[1, 1, 1], [5, 5, 5], [7, 7, 7]]
 
 
     for i in 1:20
         while length((ids_in_position((x, y), model))) > 0
-            x = rand(1:grid_n)
-            y = rand(1:grid_n)
+            x = rand(2:grid_n-1)
+            y = rand(2:grid_n-1)
         end
         add_agent!(Box, pos=(x, y), model)
         println("Box pos", x, " ", y)
@@ -304,10 +291,10 @@ function initialize_model()
     for box in allagents(model)
         if box.type == "Box"
             #dimensiones aletorias
-            # box.dimension = [rand(3:7), rand(3:7), rand(3:7)]
+            box.dimension = [rand(3:7), rand(3:7), rand(3:7)]
 
             #dimensiones del socio
-            box.dimension = lista_caja[rand(1:3)]
+            # box.dimension = lista_caja[rand(1:3)]
 
             #para indicar que el robot no pueda pasar por la caja
             grid[box.pos[1], box.pos[2]] = false
@@ -326,27 +313,23 @@ function initialize_model()
                 print(file, agent.type, " ")
                 print(file, agent.id, " ")
                 println(file, agent.dimension)
-                # println(file)  # Blank line for readability
             end
-            # println(file)  # Blank line for readability
         end
         for agent in allagents(model)
             if (agent.type == "Box")
                 print(file, "$(agent.id) ")
                 println(file, agent.dimension)
-                # println(file)  # Blank line for readability
             end
-            # println(file)  # Blank line for readability
         end
     end
     #Se ejecuta el script de python que nos dira las posiciones de las cajas
 
     #se declara el ejecutable de python
-    # python_executable = "/Users/ser/Uni/Multiagentes/Proyecto_Packaging/Python3d/simulation.py"
+    python_executable = "/home/anhuar/anaconda3/envs/my_anaconda_env/bin/python"
     # python_executable
 
     #se ejecuta el script de python
-    run(`python3 main.py`)
+    run(`$python_executable main.py`)
 
 
 
